@@ -16,7 +16,6 @@ class BDRTool(Tool):
             image="python:3.11-bullseye",
             content=content,
             args=args,
-            env=["GITHUB_TOKEN"],
             with_files=COMMON_FILE_SPECS,
             env=COMMON_ENVIRONMENT_VARIABLES,
             long_running=long_running,
