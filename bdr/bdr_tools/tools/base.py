@@ -1,7 +1,6 @@
 from kubiya_sdk.tools import Tool
 
-from tools.common import (COMMON_ENVIRONMENT_VARIABLES, 
-                          COMMON_FILE_SPECS)
+# from tools.common import (COMMON_ENVIRONMENT_VARIABLES, COMMON_FILE_SPECS)
 
 
 ICON_URL = "https://cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png"
