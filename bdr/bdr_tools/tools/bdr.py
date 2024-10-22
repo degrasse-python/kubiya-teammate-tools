@@ -1,5 +1,5 @@
 from kubiya_sdk.tools import Arg
-from .base import BDRTool, register_bdr_tool
+from tools.base import BDRTool, register_bdr_tool
 
 get_envs = BDRTool(
     name="get_envs",

@@ -2,7 +2,7 @@
 import inspect
 from kubiya_sdk.tools import FileSpec
 
-from . import printenv
+from tools import printenv
 
 # Common environment variables for bdr toolset
 COMMON_ENVIRONMENT_VARIABLES = [
