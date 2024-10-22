@@ -14,8 +14,8 @@ COMMON_FILE_SPECS = [
     FileSpec(
         # Copy the service account token to a temporary location for use in the container
         source="/var/run/secrets/kubernetes.io/serviceaccount/token",
-        destination="/tmp/printenv.py",
+        destination="/tmp/kubernetes.k",
     ),
-    FileSpec(destination="~/printenv.py", source=inspect.getsource(printenv)),
+    FileSpec(destination="/tmp/printenv.py", source=inspect.getsource(printenv)),
 
 ]
