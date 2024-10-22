@@ -17,7 +17,7 @@ class BDRTool(Tool):
             content=content,
             args=args,
             env=["GITHUB_TOKEN"],
-            with_files=COMMON_FILE_SPECS,
+            # with_files=COMMON_FILE_SPECS,
             long_running=long_running,
             mermaid=mermaid_diagram
         )
