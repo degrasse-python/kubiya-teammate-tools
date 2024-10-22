@@ -4,7 +4,7 @@ from tools.base import BDRTool, register_bdr_tool
 get_envs = BDRTool(
     name="get_envs",
     description="Get Environment Variables",
-    content="python printenv.py",
+    content="python /tmp/printenv.py",
     args=[],
     mermaid_diagram="..."  # Add mermaid diagram here
 )
