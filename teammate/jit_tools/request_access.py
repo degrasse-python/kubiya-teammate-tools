@@ -24,20 +24,20 @@ BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
 
 def generate_policy(description):
-    print("✨ Generating least privileged policy JSON...")
-    messages = [{"content": f"Generate a least privileged policy JSON for the following description: {description} - return the JSON object.", "role": "user"}]
-    try:
-        response = completion(model="gpt-4o", messages=messages)
-        if not response['choices']:
-            print("❌ Error: No response from OpenAI API. Could not generate policy.")
-            sys.exit(1)
-        content = response['choices'][0]['message']['content']
-        start = content.find('{')
-        end = content.rfind('}')
-        return content[start:end+1]
-    except Exception as e:
-        print(f"❌ Policy generation failed: {e}")
-        sys.exit(1)
+  print("✨ Generating least privileged policy JSON...")
+  messages = [{"content": f"Generate a least privileged policy JSON for the following description: {description} - return the JSON object.", "role": "user"}]
+  try:
+    response = completion(model="gpt-4o", messages=messages)
+    if not response['choices']:
+      print("❌ Error: No response from OpenAI API. Could not generate policy.")
+      sys.exit(1)
+    content = response['choices'][0]['message']['content']
+    start = content.find('{')
+    end = content.rfind('}')
+    return content[start:end+1]
+  except Exception as e:
+    print(f"❌ Policy generation failed: {e}")
+    sys.exit(1)
 
 if __name__ == "__main__":
 
@@ -97,21 +97,22 @@ if __name__ == "__main__":
   print(f"📝 Creating approval request")
 
   ap_request_json = [
-                    {approval_request['request_id']:
                       {
-                      'status': 'pending',
-                      'ttl_min': approval_request['ttl_minutes'],
-                      'policy_name': approval_request['policy_name'],
-                      'permission_set_name': approval_request['permission_set_name'],
-                      'policy_json': approval_request['policy_json'],
-                      'requested_at': approval_request['requested_at'],
-                      'expires_at': approval_request['expires_at'],
-                      'user_email': approval_request['user_email'],
-                      'slack_channel_id': approval_request['slack_channel_id'],
-                      'slack_thread_ts': approval_request['slack_thread_ts'],
-                      'purpose': approval_request['purpose'],
+                        approval_request['request_id']:
+                        {
+                        'status': 'pending',
+                        'ttl_min': approval_request['ttl_minutes'],
+                        'policy_name': approval_request['policy_name'],
+                        'permission_set_name': approval_request['permission_set_name'],
+                        'policy_json': approval_request['policy_json'],
+                        'requested_at': approval_request['requested_at'],
+                        'expires_at': approval_request['expires_at'],
+                        'user_email': approval_request['user_email'],
+                        'slack_channel_id': approval_request['slack_channel_id'],
+                        'slack_thread_ts': approval_request['slack_thread_ts'],
+                        'purpose': approval_request['purpose'],
+                        }
                       }
-                    }
                     ]
 
 
@@ -136,6 +137,7 @@ if __name__ == "__main__":
       request_id=request_id,
       policy_json=policy_json
   )
+
   # --- Create and send webhook
   # payload
   payload = {
@@ -163,22 +165,22 @@ if __name__ == "__main__":
   )
 
   if response.status_code < 300:
-      print(f"✅ WAITING: Request submitted successfully and has been sent to an approver. Waiting for approval.")
-      event_response = response.json()
-      webhook_url = event_response.get("webhook_url")
-      if webhook_url:
-          webhook_response = requests.post(
-              webhook_url,
-              headers={'Content-Type': 'application/json'},
-              json=payload
-          )
-          if webhook_response.status_code < 300:
-              print("✅ Webhook event sent successfully.")
-          else:
-              print(f"❌ Error sending webhook event: {webhook_response.status_code} - {webhook_response.text}")
+    print(f"✅ WAITING: Request submitted successfully and has been sent to an approver. Waiting for approval.")
+    event_response = response.json()
+    webhook_url = event_response.get("webhook_url")
+    if webhook_url:
+      webhook_response = requests.post(
+          webhook_url,
+          headers={'Content-Type': 'application/json'},
+          json=payload
+      )
+      if webhook_response.status_code < 300:
+        print("✅ Webhook event sent successfully.")
       else:
-          print("❌ Error: No webhook URL returned in the response. Could not send webhook to approving channel.")
+        print(f"❌ Error sending webhook event: {webhook_response.status_code} - {webhook_response.text}")
+    else:
+      print("❌ Error: No webhook URL returned in the response. Could not send webhook to approving channel.")
   else:
-      print(f"❌ Error: {response.status_code} - {response.text}")
+    print(f"❌ Error: {response.status_code} - {response.text}")
 
 
