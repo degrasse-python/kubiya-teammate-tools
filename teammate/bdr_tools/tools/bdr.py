@@ -21,3 +21,4 @@ get_github_repo_commit_list = BDRTool(
 
 for tool in [get_envs, get_github_repo_commit_list]:
     register_bdr_tool(tool)
+    
