@@ -9,9 +9,11 @@ from kubiya_sdk.tools.registry import tool_registry
 hello_tool = Tool(
     name="say_hello",
     type="docker",
-    image="python:3.12",
+    image="python:3.12-slim",
     description="Prints hello {name}!",
-    args=[Arg(name="name", description="name to say hello to", required=True)],
+    args=[Arg(name="name", 
+              description="name to say hello to", 
+              required=True)],
     content="""
 curl -LsSf https://astral.sh/uv/install.sh | sh > /dev/null 2>&1
 . $HOME/.cargo/env
