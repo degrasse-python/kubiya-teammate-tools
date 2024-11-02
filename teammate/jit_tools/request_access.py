@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timedelta
 import requests
 import uuid
+import json
 
 import argparse
 import redis
@@ -14,7 +15,7 @@ USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
 SLACK_CHANNEL_ID = os.getenv('SLACK_CHANNEL_ID')
 SLACK_THREAD_TS = os.getenv('SLACK_THREAD_TS')
 KUBIYA_USER_ORG = os.getenv('KUBIYA_USER_ORG')
-KUBIYA_API_KEY = os.getenv('KUBIYA_API_KEY')
+JIT_API_KEY = os.getenv('JIT_API_KEY')
 APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENAI_API_BASE = os.getenv('OPENAI_API_BASE')
@@ -23,21 +24,38 @@ BACKEND_PORT = os.getenv('BACKEND_PORT')
 BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
 
-def generate_policy(description):
+
+
+def generate_policy(description, demo=True):
   print("✨ Generating least privileged policy JSON...")
-  messages = [{"content": f"Generate a least privileged policy JSON for the following description: {description} - return the JSON object.", "role": "user"}]
-  try:
-    response = completion(model="gpt-4o", messages=messages)
-    if not response['choices']:
-      print("❌ Error: No response from OpenAI API. Could not generate policy.")
+  if not demo:
+    messages = [{"content": f"Generate a least privileged policy JSON for the following description: {description} - return the JSON object.", "role": "user"}]
+    try:
+      response = completion(model="gpt-4o", messages=messages) # TODO change the model to a hugging face model.
+      if not response['choices']:
+        print("❌ Error: No response from OpenAI API. Could not generate policy.")
+        sys.exit(1)
+      content = response['choices'][0]['message']['content']
+      start = content.find('{')
+      end = content.rfind('}')
+      return content[start:end+1]
+    except Exception as e:
+      print(f"❌ Policy generation failed: {e}")
       sys.exit(1)
-    content = response['choices'][0]['message']['content']
-    start = content.find('{')
-    end = content.rfind('}')
-    return content[start:end+1]
-  except Exception as e:
-    print(f"❌ Policy generation failed: {e}")
-    sys.exit(1)
+  else:
+    ec2policy = {
+            "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "Stmt1730549037760",
+                  "Action": "ec2:*",
+                  "Effect": "Allow",
+                  "Resource": "*"
+                }
+              ]
+            }
+    return json.dump(ec2policy)
+    
 
 if __name__ == "__main__":
 
@@ -92,13 +110,14 @@ if __name__ == "__main__":
   }
 
   # unique_jit_id
-  json_id = USER_EMAIL+request_id 
+  json_id = USER_EMAIL+ \
+            request_id+':'+ \
+            approval_request['requested_at']
 
   print(f"📝 Creating approval request")
 
-  ap_request_json = [
-                      {
-                        approval_request['request_id']:
+  ap_request_json =  {
+                        json_id:
                         {
                         'status': 'pending',
                         'ttl_min': approval_request['ttl_minutes'],
@@ -113,7 +132,7 @@ if __name__ == "__main__":
                         'purpose': approval_request['purpose'],
                         }
                       }
-                    ]
+                    
 
 
   ### ----- Redis Client ----- ###
@@ -121,10 +140,10 @@ if __name__ == "__main__":
                   port=BACKEND_PORT, 
                   db=BACKEND_DB,
                   password=BACKEND_PASS,)
-  ressadd = rd.sadd(request_id, str(ap_request_json))
+  ressadd = rd.sadd(json_id, str(ap_request_json))
 
   ### ----- LLM Setup ----- ### 
-  # --- Prompt
+  # --- Prompt sent to new Kubiya agent thread
   prompt = """You are an access management assistant. You are currently conversing with an approving group.
               Your task is to help the approving group decide whether to approve the following access request.
               You have a new access request from {USER_EMAIL} for the following purpose: {purpose}. The user requested this access for {ttl} minutes.
@@ -143,7 +162,7 @@ if __name__ == "__main__":
   payload = {
       "agent_id": os.getenv('KUBIYA_AGENT_UUID'),
       "communication": {
-          "destination": APPROVAL_SLACK_CHANNEL,
+          "destination": APPROVAL_SLACK_CHANNEL, # 
           "method": "Slack"
       },
       "created_at": datetime.utcnow().isoformat() + "Z",
@@ -159,7 +178,7 @@ if __name__ == "__main__":
       "https://api.kubiya.ai/api/v1/event",
       headers={
           'Content-Type': 'application/json',
-          'Authorization': f'UserKey {KUBIYA_API_KEY}'
+          'Authorization': f'UserKey {JIT_API_KEY}'
       },
       json=payload
   )

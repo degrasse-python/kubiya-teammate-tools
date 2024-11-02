@@ -7,8 +7,6 @@ import requests
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from kubiya_sdk.tools.registry import tool_registry
-
 # Provide your personal access token to avoid API rate limits (optional but recommended)
 GITHUB_URL="https://api.github.com/"
 GITHUB_TOKEN=os.environ.get('GITHUB_TOKEN')
