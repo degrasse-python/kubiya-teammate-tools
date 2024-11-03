@@ -14,12 +14,17 @@ request_access_tool = Tool(
     type="docker",
     image="python:3.12-slim",
     description="A tool to request access, generating an IAM policy based on a description and creating an approval request for admins to review",
-    args=[Arg(name="purpose", description="reason that individual needs the policy to be granted.", required=True),
+    args=[
+          Arg(name="purpose", description="reason that individual needs the policy to be granted.", required=True),
           Arg(name="ttl", description="the time to live for the policy. hours=h, minutes=m", required=True),
           Arg(name="permission_set_name", description="the name of the policy", required=True),
           Arg(name="policy_description", description="the description of the policy to be generated which includes the AWS service, actions, and Amazon Resource Name.", required=True),
           Arg(name="policy_name", description="the name of the policy", required=True),
           ],
+    env=[
+        "SLACK_THREAD_TS", 
+        "SLACK_CHANNEL_ID",
+    ],
     content="""
 
 pip install argparse > /dev/null 2>&1
@@ -51,9 +56,14 @@ approve = Tool(
     type="docker",
     image="python:3.12-slim",
     description="A tool to request access, generating an IAM policy based on a description and creating an approval request for admins to review",
-    args=[Arg(name="request_id", description="The request id that is passed via the Kubi API to grab Redis' Json for use in the request.", required=True),
+    args=[
+          Arg(name="request_id", description="The request id that is passed via the Kubi API to grab Redis' Json for use in the request.", required=True),
           Arg(name="approval_action", description="the decision that the approver will make for the just in time request.", required=True),
           ],
+    env=[
+        "SLACK_THREAD_TS", 
+        "SLACK_CHANNEL_ID",
+    ],
     content="""
 
 pip install argparse > /dev/null 2>&1
