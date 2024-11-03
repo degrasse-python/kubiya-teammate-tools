@@ -5,8 +5,7 @@ from kubiya_sdk.tools.models import (Tool,
                                      FileSpec)
 from kubiya_sdk.tools.registry import tool_registry
 
-from . import (request_access,
-               approve)
+from . import (iam)
 
 
 request_access_tool = Tool(
