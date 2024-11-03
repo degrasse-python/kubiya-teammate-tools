@@ -25,7 +25,6 @@ BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
 
 
-
 def generate_policy(description, demo=True):
   print("✨ Generating least privileged policy JSON...")
   if not demo:
@@ -58,6 +57,7 @@ def generate_policy(description, demo=True):
     
 
 if __name__ == "__main__":
+  print(BACKEND_PORT)
 
   ### ----- Parse command-line arguments ----- ###
   # Get args from Kubiya
