@@ -159,6 +159,7 @@ if __name__ == "__main__":
 
   # --- Create and send webhook
   # payload
+  print(f"📝 Sending webhook request")
   payload = {
       "agent_id": os.getenv('KUBIYA_AGENT_UUID'),
       "communication": {
@@ -182,7 +183,6 @@ if __name__ == "__main__":
       },
       json=payload
   )
-
   if response.status_code < 300:
     print(f"✅ WAITING: Request submitted successfully and has been sent to an approver. Waiting for approval.")
     event_response = response.json()

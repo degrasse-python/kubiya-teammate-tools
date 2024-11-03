@@ -15,7 +15,7 @@ request_access_tool = Tool(
     image="python:3.12-slim",
     description="A tool to request access, generating an IAM policy based on a description and creating an approval request for admins to review",
     args=[Arg(name="purpose", description="reason that individual needs the policy to be granted.", required=True),
-          Arg(name="ttl", description="the time to live for the policy.", required=True),
+          Arg(name="ttl", description="the time to live for the policy. hours=h, minutes=m", required=True),
           Arg(name="permission_set_name", description="the name of the policy", required=True),
           Arg(name="policy_description", description="the description of the policy to be generated which includes the AWS service, actions, and Amazon Resource Name.", required=True),
           Arg(name="policy_name", description="the name of the policy", required=True),
