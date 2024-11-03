@@ -32,3 +32,7 @@ iam_delete_policy = AWSCliTool(
           ],
 )
 
+
+tool_registry.register("iam_list_roles", iam_list_roles)
+tool_registry.register("iam_create_policy", iam_create_policy)
+tool_registry.register("iam_delete_policy", iam_delete_policy)
