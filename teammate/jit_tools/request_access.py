@@ -10,19 +10,6 @@ import argparse
 import redis
 from litellm import completion
 
-# Environment variables
-USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
-SLACK_CHANNEL_ID = os.getenv('SLACK_CHANNEL_ID')
-SLACK_THREAD_TS = os.getenv('SLACK_THREAD_TS')
-KUBIYA_USER_ORG = os.getenv('KUBIYA_USER_ORG')
-JIT_API_KEY = os.getenv('JIT_API_KEY')
-APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-OPENAI_API_BASE = os.getenv('OPENAI_API_BASE')
-BACKEND_URL = os.getenv('BACKEND_URL')
-BACKEND_PORT = os.getenv('BACKEND_PORT')
-BACKEND_DB = os.getenv('BACKEND_DB')
-BACKEND_PASS = os.getenv('BACKEND_PASS')
 
 
 def generate_policy(description, demo=True):
@@ -57,6 +44,20 @@ def generate_policy(description, demo=True):
     
 
 if __name__ == "__main__":
+  # Environment variables
+  USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
+  SLACK_CHANNEL_ID = os.getenv('SLACK_CHANNEL_ID')
+  SLACK_THREAD_TS = os.getenv('SLACK_THREAD_TS')
+  KUBIYA_USER_ORG = os.getenv('KUBIYA_USER_ORG')
+  JIT_API_KEY = os.getenv('JIT_API_KEY')
+  APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
+  OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+  OPENAI_API_BASE = os.getenv('OPENAI_API_BASE')
+  BACKEND_URL = os.getenv('BACKEND_URL')
+  BACKEND_PORT = os.getenv('BACKEND_PORT')
+  BACKEND_DB = os.getenv('BACKEND_DB')
+  BACKEND_PASS = os.getenv('BACKEND_PASS')
+
   print(f"✅ Backend PORT: \n\n{BACKEND_PORT}")
 
   ### ----- Parse command-line arguments ----- ###
