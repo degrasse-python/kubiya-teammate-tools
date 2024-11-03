@@ -57,7 +57,7 @@ def generate_policy(description, demo=True):
     
 
 if __name__ == "__main__":
-  print(BACKEND_PORT)
+  print(f"✅ Backend PORT: \n\n{BACKEND_PORT}")
 
   ### ----- Parse command-line arguments ----- ###
   # Get args from Kubiya
