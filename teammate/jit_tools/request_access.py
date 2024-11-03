@@ -54,7 +54,7 @@ def generate_policy(description, demo=True):
                 }
               ]
             }
-    return json.dump(ec2policy)
+    return json.dumps(ec2policy)
     
 
 if __name__ == "__main__":
