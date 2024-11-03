@@ -140,7 +140,7 @@ if __name__ == "__main__":
                   port=BACKEND_PORT, 
                   db=BACKEND_DB,
                   password=BACKEND_PASS,)
-  ressadd = rd.sadd(json_id, str(ap_request_json))
+  ressadd = rd.sadd((json_id), str(ap_request_json))
 
   ### ----- LLM Setup ----- ### 
   # --- Prompt sent to new Kubiya agent thread
