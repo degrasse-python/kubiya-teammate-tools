@@ -133,8 +133,10 @@ if __name__ == "__main__":
                         }
                       }
                     
+  load = res[0].decode('utf8').replace("'", '"')
 
-
+  print(f"✅ Generated least privileged policy JSON:\n\n{ap_request_json}")
+  print(f"✅ For JSON ID:\n\n{json_id}")
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
                   port=BACKEND_PORT, 
