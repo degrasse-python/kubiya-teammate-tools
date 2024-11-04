@@ -178,7 +178,7 @@ if __name__ == "__main__":
 
   webhook_payload = {
     "communication": {
-        "destination": APPROVAL_SLACK_CHANNEL, # 
+        "destination": APPROVAL_SLACK_CHANNEL, 
         "method": "Slack"
     },
     "created_at": datetime.utcnow().isoformat() + "Z",
@@ -193,11 +193,13 @@ if __name__ == "__main__":
     "source": "Triggered by an access request (Agent)",
     "updated_at": datetime.utcnow().isoformat() + "Z"
   }
+
   # --- send to API
   # response = requests.post("https://api.kubiya.ai/api/v1/event",headers={'Content-Type': 'application/json','Authorization': f'UserKey {JIT_API_KEY}'},json=payload)
   
   ### ----- Send to Webhook ----- ###
-  response = requests.post(KUBIYA_JIT_WEBHOOK,
+  response = requests.post(
+      KUBIYA_JIT_WEBHOOK,
       headers={
           'Content-Type': 'application/json',
       },
