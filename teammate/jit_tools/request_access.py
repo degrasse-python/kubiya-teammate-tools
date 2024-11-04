@@ -57,8 +57,6 @@ if __name__ == "__main__":
   BACKEND_DB = os.getenv('BACKEND_DB')
   BACKEND_PASS = os.getenv('BACKEND_PASS')
 
-  print(f"✅ Backend PORT: \n\n{BACKEND_PORT}")
-
   ### ----- Parse command-line arguments ----- ###
   # Get args from Kubiya
   parser = argparse.ArgumentParser(description="Trigger a request for just in time permissions that require approval from another user.")
@@ -77,7 +75,6 @@ if __name__ == "__main__":
   policy_name = args.policy_name
 
   policy_json = generate_policy(policy_description)
-  print(f"✅ Generated least privileged policy JSON:\n\n{policy_json}")
 
   try:
     if ttl[-1] == 'm':
@@ -192,11 +189,11 @@ if __name__ == "__main__":
   else:
     print(f"❌ Error: {response.status_code} - {response.text}")
 
-  print(f"✅ Generated least privileged policy JSON:\n\n{ap_request_json}")
+  print(f"✅ Generated least privileged policy ")
   print(f"✅ For JSON ID:\n\n{json_id}")
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
-                  port=12861, #BACKEND_PORT, 
+                  port=BACKEND_PORT, 
                   db=BACKEND_DB,
                   password=BACKEND_PASS,)
   ressadd = rd.sadd((json_id), str(ap_request_json))
