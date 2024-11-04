@@ -25,6 +25,7 @@ BACKEND_PORT = os.getenv('BACKEND_PORT')
 BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
 
+
 def generate_policy(description, demo=True):
   print("✨ Generating least privileged policy JSON...")
   if not demo:
@@ -57,20 +58,6 @@ def generate_policy(description, demo=True):
     
 
 if __name__ == "__main__":
-  # Environment variables
-  USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
-  SLACK_CHANNEL_ID = os.getenv('SLACK_CHANNEL_ID')
-  SLACK_THREAD_TS = os.getenv('SLACK_THREAD_TS')
-  KUBIYA_USER_ORG = os.getenv('KUBIYA_USER_ORG')
-  KUBIYA_JIT_WEBHOOK = os.getenv('KUBIYA_USER_ORG')
-  JIT_API_KEY = os.getenv('JIT_API_KEY')
-  APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
-  OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-  OPENAI_API_BASE = os.getenv('OPENAI_API_BASE')
-  BACKEND_URL = os.getenv('BACKEND_URL')
-  BACKEND_PORT = os.getenv('BACKEND_PORT')
-  BACKEND_DB = os.getenv('BACKEND_DB')
-  BACKEND_PASS = os.getenv('BACKEND_PASS')
 
   ### ----- Parse command-line arguments ----- ###
   # Get args from Kubiya
@@ -155,14 +142,7 @@ if __name__ == "__main__":
                   db=BACKEND_DB,
                   password=BACKEND_PASS,)
   # --- Store request in Redis --- #  
-  try:
-    ressadd = rd.set(str(json_id), json.dumps(ap_request_json))
-    if not ressadd:
-      print("❌ Error: Failed to store request in Redis")
-      sys.exit(1)
-  except (ResponseError, ConnectionError) as e:
-    print(f"❌ Redis error: {e}")
-    sys.exit(1)
+  ressadd = rd.set(str(json_id), json.dumps(ap_request_json))
 
   ### ----- LLM Setup ----- ### 
   # --- Prompt sent to new Kubiya agent thread TODO -- Add correct API endpoint or remove prompt and use webhook.
