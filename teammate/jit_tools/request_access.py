@@ -48,6 +48,7 @@ if __name__ == "__main__":
   SLACK_CHANNEL_ID = os.getenv('SLACK_CHANNEL_ID')
   SLACK_THREAD_TS = os.getenv('SLACK_THREAD_TS')
   KUBIYA_USER_ORG = os.getenv('KUBIYA_USER_ORG')
+  KUBIYA_JIT_WEBHOOK = os.getenv('KUBIYA_USER_ORG')
   JIT_API_KEY = os.getenv('JIT_API_KEY')
   APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
   OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -129,8 +130,18 @@ if __name__ == "__main__":
                         'purpose': approval_request['purpose'],
                         }
                       }
+  
+  print(f"✅ Generated least privileged policy ")
+  print(f"✅ For JSON ID:\n\n{json_id}")
+  ### ----- Redis Client ----- ###
+  rd = redis.Redis(host=BACKEND_URL, 
+                  port=BACKEND_PORT, 
+                  db=BACKEND_DB,
+                  password=BACKEND_PASS,)
+  ressadd = rd.sadd((json_id), str(ap_request_json))
+
   ### ----- LLM Setup ----- ### 
-  # --- Prompt sent to new Kubiya agent thread
+  # --- Prompt sent to new Kubiya agent thread TODO -- Add correct API endpoint or remove prompt and use webhook.
   prompt = """You are an access management assistant. You are currently conversing with an approving group.
               Your task is to help the approving group decide whether to approve the following access request.
               You have a new access request from {USER_EMAIL} for the following purpose: {purpose}. The user requested this access for {ttl} minutes.
@@ -161,42 +172,41 @@ if __name__ == "__main__":
       "source": "Triggered by an access request (Agent)",
       "updated_at": datetime.utcnow().isoformat() + "Z"
   }
-  # --- send to webhook
-  response = requests.post(
-      "https://api.kubiya.ai/api/v1/event",
+
+  webhook_payload = {
+    "communication": {
+        "destination": APPROVAL_SLACK_CHANNEL, # 
+        "method": "Slack"
+    },
+    "created_at": datetime.utcnow().isoformat() + "Z",
+    "created_by": USER_EMAIL,
+    "name": "Approval Request",
+    "org": KUBIYA_USER_ORG,
+    'USER_EMAIL': USER_EMAIL,
+    'purpose': policy_json,
+    'request_id': json_id, 
+    'policy_json': policy_json,
+    'ttl': ttl,
+    "source": "Triggered by an access request (Agent)",
+    "updated_at": datetime.utcnow().isoformat() + "Z"
+  }
+  # --- send to API
+  # response = requests.post("https://api.kubiya.ai/api/v1/event",headers={'Content-Type': 'application/json','Authorization': f'UserKey {JIT_API_KEY}'},json=payload)
+  
+  ### ----- Send to Webhook ----- ###
+  response = requests.post(KUBIYA_JIT_WEBHOOK,
       headers={
           'Content-Type': 'application/json',
-          'Authorization': f'UserKey {JIT_API_KEY}'
       },
-      json=payload
+      json=webhook_payload
   )
+
   if response.status_code < 300:
     print(f"✅ WAITING: Request submitted successfully and has been sent to an approver. Waiting for approval.")
     event_response = response.json()
     webhook_url = event_response.get("webhook_url")
-    if webhook_url:
-      webhook_response = requests.post(
-          webhook_url,
-          headers={'Content-Type': 'application/json'},
-          json=payload
-      )
-      if webhook_response.status_code < 300:
-        print("✅ Webhook event sent successfully.")
-      else:
-        print(f"❌ Error sending webhook event: {webhook_response.status_code} - {webhook_response.text}")
-    else:
-      print("❌ Error: No webhook URL returned in the response. Could not send webhook to approving channel.")
   else:
-    print(f"❌ Error: {response.status_code} - {response.text}")
-
-  print(f"✅ Generated least privileged policy ")
-  print(f"✅ For JSON ID:\n\n{json_id}")
-  ### ----- Redis Client ----- ###
-  rd = redis.Redis(host=BACKEND_URL, 
-                  port=BACKEND_PORT, 
-                  db=BACKEND_DB,
-                  password=BACKEND_PASS,)
-  ressadd = rd.sadd((json_id), str(ap_request_json))
+    print(f"❌ Error sending webhook event: {response.status_code} - {response.text}")
 
   
 
