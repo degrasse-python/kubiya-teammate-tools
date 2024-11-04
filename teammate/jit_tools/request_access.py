@@ -11,7 +11,6 @@ import redis
 from litellm import completion
 
 
-
 def generate_policy(description, demo=True):
   print("✨ Generating least privileged policy JSON...")
   if not demo:
@@ -197,8 +196,8 @@ if __name__ == "__main__":
   print(f"✅ For JSON ID:\n\n{json_id}")
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
-                  port=BACKEND_PORT, 
-                  db=12861, #BACKEND_DB,
+                  port=12861, #BACKEND_PORT, 
+                  db=BACKEND_DB,
                   password=BACKEND_PASS,)
   ressadd = rd.sadd((json_id), str(ap_request_json))
 
