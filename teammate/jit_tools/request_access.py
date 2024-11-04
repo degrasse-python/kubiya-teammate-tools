@@ -8,6 +8,7 @@ import json
 
 import argparse
 import redis
+from redis.exceptions import ResponseError, ConnectionError
 from litellm import completion
 
 
@@ -108,9 +109,9 @@ if __name__ == "__main__":
   }
 
   # unique_jit_id
-  json_id = USER_EMAIL+ \
-            request_id+':'+ \
-            approval_request['requested_at']
+  json_id = request_id+':'+ \
+            approval_request['requested_at'] # USER_EMAIL+ \
+            
 
   print(f"📝 Creating approval request")
 
@@ -138,7 +139,14 @@ if __name__ == "__main__":
                   port=BACKEND_PORT, 
                   db=BACKEND_DB,
                   password=BACKEND_PASS,)
-  ressadd = rd.sadd(str(json_id), str(ap_request_json))
+  try:
+    ressadd = rd.set(str(json_id), json.dumps(ap_request_json))
+    if not ressadd:
+      print("❌ Error: Failed to store request in Redis")
+      sys.exit(1)
+  except (ResponseError, ConnectionError) as e:
+    print(f"❌ Redis error: {e}")
+    sys.exit(1)
 
   ### ----- LLM Setup ----- ### 
   # --- Prompt sent to new Kubiya agent thread TODO -- Add correct API endpoint or remove prompt and use webhook.
@@ -207,8 +215,4 @@ if __name__ == "__main__":
     webhook_url = event_response.get("webhook_url")
   else:
     print(f"❌ Error sending webhook event: {response.status_code} - {response.text}")
-
-  
-
-
 
