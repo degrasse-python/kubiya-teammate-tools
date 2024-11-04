@@ -1,0 +1,6 @@
+kubiya-sdk
+requests
+slack-sdk
+redis
+litellm
+argparse
