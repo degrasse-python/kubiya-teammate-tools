@@ -27,7 +27,10 @@ request_access_tool = Tool(
         'BACKEND_URL',
         'BACKEND_PORT',
         'BACKEND_DB',
-        'BACKEND_PASS'
+        'BACKEND_PASS',
+        'JIT_API_KEY',
+        'APPROVAL_SLACK_CHANNEL',
+        
     ],
     content="""
 

@@ -11,6 +11,19 @@ import redis
 from redis.exceptions import ResponseError, ConnectionError
 from litellm import completion
 
+USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
+SLACK_CHANNEL_ID = os.getenv('SLACK_CHANNEL_ID')
+SLACK_THREAD_TS = os.getenv('SLACK_THREAD_TS')
+KUBIYA_USER_ORG = os.getenv('KUBIYA_USER_ORG')
+KUBIYA_JIT_WEBHOOK = os.getenv('KUBIYA_USER_ORG')
+JIT_API_KEY = os.getenv('JIT_API_KEY')
+APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENAI_API_BASE = os.getenv('OPENAI_API_BASE')
+BACKEND_URL = os.getenv('BACKEND_URL')
+BACKEND_PORT = os.getenv('BACKEND_PORT')
+BACKEND_DB = os.getenv('BACKEND_DB')
+BACKEND_PASS = os.getenv('BACKEND_PASS')
 
 def generate_policy(description, demo=True):
   print("✨ Generating least privileged policy JSON...")
@@ -166,7 +179,7 @@ if __name__ == "__main__":
       policy_json=policy_json
   )
 
-  # --- Create and send webhook
+  ### ----- Create and send webhook ----- ###
   # payload
   print(f"📝 Sending webhook request")
   payload = {
