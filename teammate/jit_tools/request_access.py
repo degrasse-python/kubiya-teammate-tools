@@ -142,7 +142,7 @@ if __name__ == "__main__":
                   db=BACKEND_DB,
                   password=BACKEND_PASS,)
   # --- Store request in Redis --- #  
-  ressadd = rd.sadd(str(json_id), str(ap_request_json))
+  ressadd = rd.sadd(request_id, json.dumps(ap_request_json))
 
   ### ----- LLM Setup ----- ### 
   # --- Prompt sent to new Kubiya agent thread TODO -- Add correct API endpoint or remove prompt and use webhook.
