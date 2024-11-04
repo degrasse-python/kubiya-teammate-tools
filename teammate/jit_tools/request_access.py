@@ -133,16 +133,6 @@ if __name__ == "__main__":
                         'purpose': approval_request['purpose'],
                         }
                       }
-                    
-  print(f"✅ Generated least privileged policy JSON:\n\n{ap_request_json}")
-  print(f"✅ For JSON ID:\n\n{json_id}")
-  ### ----- Redis Client ----- ###
-  rd = redis.Redis(host=BACKEND_URL, 
-                  port=BACKEND_PORT, 
-                  db=12861, #BACKEND_DB,
-                  password=BACKEND_PASS,)
-  ressadd = rd.sadd((json_id), str(ap_request_json))
-
   ### ----- LLM Setup ----- ### 
   # --- Prompt sent to new Kubiya agent thread
   prompt = """You are an access management assistant. You are currently conversing with an approving group.
@@ -202,5 +192,17 @@ if __name__ == "__main__":
       print("❌ Error: No webhook URL returned in the response. Could not send webhook to approving channel.")
   else:
     print(f"❌ Error: {response.status_code} - {response.text}")
+
+  print(f"✅ Generated least privileged policy JSON:\n\n{ap_request_json}")
+  print(f"✅ For JSON ID:\n\n{json_id}")
+  ### ----- Redis Client ----- ###
+  rd = redis.Redis(host=BACKEND_URL, 
+                  port=BACKEND_PORT, 
+                  db=12861, #BACKEND_DB,
+                  password=BACKEND_PASS,)
+  ressadd = rd.sadd((json_id), str(ap_request_json))
+
+  
+
 
 
