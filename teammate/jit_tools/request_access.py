@@ -134,11 +134,14 @@ if __name__ == "__main__":
   
   print(f"✅ Generated least privileged policy ")
   print(f"✅ For JSON ID:\n\n{json_id}")
+  print(BACKEND_DB, BACKEND_PORT, BACKEND_URL, BACKEND_PASS)
+
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
                   port=BACKEND_PORT, 
                   db=BACKEND_DB,
                   password=BACKEND_PASS,)
+  # --- Store request in Redis --- #  
   try:
     ressadd = rd.set(str(json_id), json.dumps(ap_request_json))
     if not ressadd:
