@@ -44,10 +44,6 @@ python /tmp/request_access.py --purpose $purpose --ttl $ttl --permission_set_nam
             destination="/tmp/request_access.py",
             content=inspect.getsource(request_access),
         ),
-        FileSpec(
-            destination="/tmp/requirements.txt",
-            content="",  # Add any requirements here
-        ),
     ],
 )
 
@@ -82,10 +78,6 @@ python /tmp/approve.py --request_id $request_id --approval_action $approval_acti
         FileSpec(
             destination="/tmp/approve.py",
             content=inspect.getsource(approve),
-        ),
-        FileSpec(
-            destination="/tmp/requirements.txt",
-            content="",  # Add any requirements here
         ),
     ],
 )

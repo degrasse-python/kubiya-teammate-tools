@@ -12,6 +12,6 @@ COMMON_ENVIRONMENT_VARIABLES = [
 
 # Common file specifications, including the Kubernetes service account token
 COMMON_FILE_SPECS = [
-    FileSpec(destination="/tmp/printenv.py", source=printenv),
+    FileSpec(destination="/tmp/printenv.py", source=teammate/requirements.txtprintenv),
 
 ]
