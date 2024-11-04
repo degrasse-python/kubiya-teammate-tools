@@ -139,7 +139,6 @@ if __name__ == "__main__":
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
                   port=BACKEND_PORT, 
-                  db=BACKEND_DB,
                   password=BACKEND_PASS,)
   # --- Store request in Redis --- #  
   ressadd = rd.sadd(request_id, json.dumps(ap_request_json))
