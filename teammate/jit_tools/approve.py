@@ -62,7 +62,7 @@ if __name__ == "__main__":
     print("❌ Missing APPROVER_USER_EMAIL environment variable")
     sys.exit(1)
 
-  if approval_action not in ['approved', 'rejected', 'denied']:
+  if approval_action not in ['approve', 'approved', 'rejected', 'denied']:
     print("❌ Error: Invalid approval action. Use 'approved' or 'rejected'.")
     sys.exit(1)
 
