@@ -24,6 +24,7 @@ BACKEND_URL = os.getenv('BACKEND_URL')
 BACKEND_PORT = os.getenv('BACKEND_PORT')
 BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
+KUBIYA_USER_ORG = 'deonsaunders-kjr.slack.com'
 
 
 def generate_policy(description, demo=True):
