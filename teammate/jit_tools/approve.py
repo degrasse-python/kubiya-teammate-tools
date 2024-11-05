@@ -11,7 +11,7 @@ import boto3
 
 
 APPROVER_USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
-APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
+APPROVAL_SLACK_CHANNEL = 'C07R1TGSDPF' #os.getenv('APPROVAL_SLACK_CHANNEL')
 REQUEST_SLACK_CHANNEL = '#jit_requests'
 APPROVING_USERS = ['adsaunde1@gmail.com'] #  #TODO create list of named emails that can approve this request.
 SLACK_API_TOKEN = os.getenv('SLACK_API_TOKEN')
@@ -22,9 +22,26 @@ BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
 AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
-KUBI_UUID = os.getenv('KUBI_UUID')
+KUBI_UUID = '760b34a8-bc05-4224-9137-bffc43bef24c' #os.getenv('KUBI_UUID')
 
 # TODO make key available for this POV or use hardcoded json policy in meantime. 
+def send_slack_message(channel_id, message, slack_token):
+    url = "https://slack.com/api/chat.postMessage"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {slack_token}"
+    }
+    data = {
+        "channel": channel_id,
+        "text": message
+    }
+    
+    response = requests.post(url, headers=headers, json=data)
+    if response.status_code == 200 and response.json().get("ok"):
+        print(f"✅ All done! Slack notification sent successfully")
+    else:
+        print(f"❌ Error sending Slack notification: {response.status_code} - {response.text}")
+
 
 if __name__ == "__main__":
 
@@ -192,23 +209,30 @@ if __name__ == "__main__":
 
   }
 
-  try:
-    for slack_payload in [slack_payload_main_thread, slack_payload_in_thread]:
-      slack_response = requests.post(
-          "https://slack.com/api/chat.postMessage",
-          headers={
-              'Content-Type': 'application/json',
-              'Authorization': f'Bearer {SLACK_API_TOKEN}'
-          },
-          json=slack_payload
-      )
-  except Exception as e:
+  
+  '''try:for slack_payload in [slack_payload_main_thread, slack_payload_in_thread]:
+    slack_response = requests.post(
+        "https://slack.com/api/chat.postMessage",
+        headers={
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {SLACK_API_TOKEN}'
+        },
+        json=slack_payload
+    )'''
+    
+  send_slack_message('D07R08SHLT0', 
+                       f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.", 
+                       SLACK_API_TOKEN
+                       )
+  print(f"✅ All done! Slack notification sent successfully")
+    # else:
+  '''except Exception as e:
     print(f'Exception occured" {e}')
 
     ### TODO --- Remove expired requests --- TODO ###
   
-    if slack_response.status_code < 300:
-      print(f"✅ All done! Slack notification sent successfully")
-    else:
-      print(f"❌ Error sending Slack notification: {slack_response.status_code} - {slack_response.text}")
-
+    # if slack_response.status_code < 300:
+    print(f"✅ All done! Slack notification sent successfully")
+    # else:
+    print(f"❌ Error sending Slack notification: {slack_response.status_code} - {slack_response.text}")
+  '''
