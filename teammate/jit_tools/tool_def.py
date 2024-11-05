@@ -77,7 +77,8 @@ approve = Tool(
     ],
     content="""
 pip install pytimeparse > /dev/null 2>&1
-pip install argparse > /dev/null 2>&1
+pip install pytimeparse > /dev/null 2>&1
+pip install boto3 > /dev/null 2>&1
 pip install redis > /dev/null 2>&1
 pip install slack_sdk > /dev/null 2>&1
 pip install requests > /dev/null 2>&1

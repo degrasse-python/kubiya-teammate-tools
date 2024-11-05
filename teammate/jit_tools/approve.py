@@ -7,7 +7,6 @@ import json
 import argparse
 import redis
 from pytimeparse.timeparse import timeparse
-
 import boto3
 
 
