@@ -37,7 +37,7 @@ if __name__ == "__main__":
   request_id = args.request_id
   approval_action = args.approval_action
 
-
+  print(APPROVING_USERS)
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
                   port=BACKEND_PORT, 
