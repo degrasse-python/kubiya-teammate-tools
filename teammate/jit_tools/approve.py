@@ -116,6 +116,8 @@ if __name__ == "__main__":
           PolicyName=approval_request[request_id]['policy_name'],
           PolicyDocument=json.dumps(approval_request[request_id]['policy_json'])
       )
+      print(f"Boto3 response: {response}")
+
       print(f"Policy created successfully: {response['Policy']['Arn']}")
     except iam_client.exceptions.EntityAlreadyExistsException:
         print(f"Policy {approval_request[request_id]['policy_name']} already exists.")
