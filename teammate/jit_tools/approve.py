@@ -44,15 +44,19 @@ if __name__ == "__main__":
                   password=BACKEND_PASS,)
 
   # --- get byte list
-  print(f"Request ID: {request_id}")
-  res = rd.smembers(request_id)
-  # --- decode list member of bytes into str
-  decoded_load = [item.decode('utf-8').replace("'", '"') for item in res]
+  try:
+    print(f"Request ID: {request_id}")
+    res = rd.smembers(request_id)
+    # --- decode list member of bytes into str
+    decoded_load = [item.decode('utf-8').replace("'", '"') for item in res]
 
-  print(decoded_load)
-  load = decoded_load[0] #.decode('utf8').replace("'", '"')
-  # --- load into json
-  approval_request = json.loads(load)
+    print(decoded_load)
+    load = decoded_load[0] #.decode('utf8').replace("'", '"')
+    # --- load into json
+    approval_request = json.loads(load)
+  except Exception as e:
+    print(e)
+    sys.exit(1)
 
   if not APPROVER_USER_EMAIL:
     print("❌ Missing APPROVER_USER_EMAIL environment variable")
