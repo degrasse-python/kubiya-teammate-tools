@@ -84,26 +84,6 @@ if __name__ == "__main__":
 
 
   if approval_action in ['approve', 'approved']:
-    duration_minutes = approval_request[request_id]['ttl_min']
-
-    # Set the future time to remove the policy based on ISO format and duration
-    duration_seconds = timeparse(f"{duration_minutes}m")
-    if duration_seconds is None:
-      raise ValueError("Invalid duration format")
-
-    # Convert duration_seconds to a timedelta
-    duration_timedelta = timedelta(seconds=duration_seconds)
-
-    now = datetime.now(timezone.utc)  # Get the current time in UTC with timezone
-    schedule_time = now + duration_timedelta
-    try:
-      schedule_time = schedule_time.isoformat()
-    except Exception as e:
-      print(f"❌ Error: Could not place future deletion time in ISO format: {e}")
-      print(f"As a fallback, the policy will be removed in 1 hour.")
-      # Fallback to 1 hour
-      schedule_time = now + timedelta(hours=1)
-      schedule_time = schedule_time.isoformat()
     print("Creating Policy: ")
 
     ### ----- BOTO3 ----- ###
@@ -128,43 +108,54 @@ if __name__ == "__main__":
         sys.exit(1)
 
     ### TODO --- Remove expired requests --- TODO ###
-    schedule_time = now + duration_timedelta
+  
+    
+    
     try:
+      # Get the current time in UTC with timezone
+      now = datetime.now(timezone.utc)  
+      # policy duration
+      duration_minutes = approval_request[request_id]['ttl_min']
+
+      # Set the future time to remove the policy based on ISO format and duration
+      duration_seconds = timeparse(f"{duration_minutes}m")
+      # check for none 
+      if duration_seconds is None:
+        raise ValueError("Invalid duration format")
+
+      # Convert duration_seconds to a timedelta
+      duration_timedelta = timedelta(seconds=duration_seconds)
+      # set scheduled time
+      schedule_time = now + duration_timedelta
       schedule_time = schedule_time.isoformat()
+
     except Exception as e:
       print(f"❌ Error: Could not place future deletion time in ISO format: {e}")
       print(f"As a fallback, the policy will be removed in 1 hour.")
       # Fallback to 1 hour
+      now = datetime.now(timezone.utc)
       schedule_time = now + timedelta(hours=1)
       schedule_time = schedule_time.isoformat()
     
-    task_payload = {
-        "scheduled_time": schedule_time,
-        # TODO:: Notify both ends on Slack (easy to do with a dedicated Slack tool)
-        "task_description": f"Immediately remove policy {approval_request[request_id]['policy_name']} from permission set {approval_request[request_id]['permission_set_name']} as the TTL has expired",
-        "channel_id": APPROVAL_SLACK_CHANNEL,
-        "user_email": approval_request[request_id]['user_email'],
-        "organization_name": os.getenv("KUBIYA_USER_ORG"),
-        "agent": os.getenv("KUBIYA_AGENT_PROFILE")
-    }
+    
     sch_task ={
-                  'cron_string': "",
-                  'schedule_time': schedule_time, # time in iso format
-                  'channel_id': APPROVAL_SLACK_CHANNEL,
-                  'task_description': f"Delete iam role with arn {response['Policy']['Arn']}", # TODO replace name with ARN
-                  'selected_agent': KUBI_UUID
+                'cron_string': "",
+                'schedule_time': schedule_time, # time in iso format
+                'channel_id': APPROVAL_SLACK_CHANNEL,
+                'task_description': f"Delete iam role with arn {response['Policy']['Arn']}", # TODO replace name with ARN
+                'selected_agent': KUBI_UUID
               }
     
-
+    print(f'cheduled task : {sch_task}')
+    print(f"Sending scheduled task for policy: {response['Policy']['Arn']}")
     response = requests.post(
-        'https://api.kubiya.ai/api/v1/scheduled_tasks', # TODO change to the correct endpoint
-        headers={
-            'Authorization': f'UserKey {JIT_API_KEY}',
-            'Content-Type': 'application/json'
-        },
-        json=sch_task
-    )
-
+                  'https://api.kubiya.ai/api/v1/scheduled_tasks', # TODO change to the correct endpoint
+                  headers={
+                      'Authorization': f'UserKey {JIT_API_KEY}',
+                      'Content-Type': 'application/json'
+                  },
+                  json=sch_task
+                )
 
   slack_channel_id = approval_request[request_id]['slack_channel_id']
   slack_thread_ts = approval_request[request_id]['slack_thread_ts']
