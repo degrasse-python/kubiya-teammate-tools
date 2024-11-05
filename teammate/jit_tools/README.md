@@ -28,7 +28,7 @@ graph TD
     C --> D[👀 POST to Webhook for Admin Review]
     D --> E[👀 POST to Webhook for Admin Review]
     E --> F{✅ Approval Decision}
-    F -->|Approved| F[🔗 Attach Policy]
+    F -->|Approved| G[🔗 Attach Policy]
     F -->|Rejected| G[❌ Notify Rejection]
     G --> H[⏰ Set Expiry Timer]
     H --> I[🗑️ Auto-Remove Policy]
