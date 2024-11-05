@@ -36,8 +36,9 @@ if __name__ == "__main__":
   args = parser.parse_args()
   request_id = args.request_id
   approval_action = args.approval_action
-
-  print(APPROVING_USERS)
+  users_test = [email.strip() for email in APPROVING_USERS if email.strip()]
+  print(f"Request ID: {users_test}")
+  print(f"Request ID: {APPROVING_USERS}")
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
                   port=BACKEND_PORT, 
