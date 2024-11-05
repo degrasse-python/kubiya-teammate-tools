@@ -49,9 +49,9 @@ graph TD
 
 
     U[Request Access] --> AI[Request Access]
-    AI[] --> AI[Generate Policy]
-    AI[] --> A[Request Approval]
-    A[] --> AWS[Approve & Attach]
+    AI[Generate Policy] --> AI[Generate Policy]
+    AI[Request Approval] --> A[Request Approval]
+    A[Request Approval] --> AWS[Approve & Attach]
     Note over AWS: Policy Active
     AWS[Policy Active] --> AWS[Monitor TTL]
     AWS[Policy Active] --> AWS[Auto-Remove]
