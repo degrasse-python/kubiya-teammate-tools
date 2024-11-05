@@ -23,7 +23,7 @@ AWS JIT (Just-In-Time) Crew is your intelligent companion within the Kubiya plat
 ```mermaid
 graph TD
     A[📥 Access Request] --> B{🤔 AI Model Policy Creation}
-    B --> C[📝 Policy Validation (WIP)]
+    B --> C[📝 Policy Validation - coming soon]
     B --> C[✅ POST Request to Redis for Analysis/Persistance]
     C --> D[👀 POST to Webhook for Admin Review]
     D --> E[👀 POST to Webhook for Admin Review]
