@@ -46,10 +46,7 @@ graph TD
 
 ```mermaid
 graph TD
-    participant U as User
-    participant AI as AI Engine
-    participant A as Admin
-    participant AWS as AWS IAM
+
 
     U --> AI: Request Access
     AI --> AI: Generate Policy
