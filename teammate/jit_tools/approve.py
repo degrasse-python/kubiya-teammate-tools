@@ -40,7 +40,6 @@ if __name__ == "__main__":
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
                   port=BACKEND_PORT, 
-                  db=BACKEND_DB,
                   password=BACKEND_PASS,)
 
   # --- get byte list
