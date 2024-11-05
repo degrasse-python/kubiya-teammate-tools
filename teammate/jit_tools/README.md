@@ -49,13 +49,13 @@ graph TD
 
 
     U[Request Access] --> AI[Request Access]
-    AI --> AI: Generate Policy
-    AI --> A: Request Approval
-    A --> AWS: Approve & Attach
+    AI[] --> AI[Generate Policy]
+    AI[] --> A[Request Approval]
+    A[] --> AWS[Approve & Attach]
     Note over AWS: Policy Active
-    AWS --> AWS: Monitor TTL
-    AWS --> AWS: Auto-Remove
-    AWS --> U: Access Expired
+    AWS[Policy Active] --> AWS[Monitor TTL]
+    AWS[Policy Active] --> AWS[Auto-Remove]
+    AWS[Policy Active] --> U[Access Expired]
 
     style U   fill:#f9d71c,stroke:#333,stroke-width:2px
     style AI  fill:#3498db,stroke:#333,stroke-width:2px
