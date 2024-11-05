@@ -28,9 +28,7 @@ request_access_tool = Tool(
         'BACKEND_PORT',
         'BACKEND_DB',
         'BACKEND_PASS',
-        'USER_EMAIL',
         'KUBIYA_JIT_WEBHOOK',
-        'KUBIYA_USER_ORG',
         'APPROVAL_SLACK_CHANNEL',
         
     ],
