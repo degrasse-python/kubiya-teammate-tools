@@ -28,9 +28,9 @@ if __name__ == "__main__":
 
   ### ----- Parse command-line arguments ----- ###
   # Get args from Kubiya
-  parser = argparse.ArgumentParser(description="Trigger a search for github users")
-  parser.add_argument("--request_id", required=True, help="The url of the git repo")
-  parser.add_argument("--approval_action", required=True, help="The url of the git repo")
+  parser = argparse.ArgumentParser(description="Just in time request filing.")
+  parser.add_argument("--request_id", required=True, help="Take the request_id from the webhook sent and use that as the parameter for the request.")
+  parser.add_argument("--approval_action", required=True, help="The user will anwser the request with: 'approve request' or 'deny request'")
 
   args = parser.parse_args()
   request_id = args.request_id
