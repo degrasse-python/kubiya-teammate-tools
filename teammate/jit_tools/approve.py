@@ -213,7 +213,7 @@ if __name__ == "__main__":
               "type": "section",
               "text": {
                   "type": "mrkdwn",
-                  "text": f"*Good news!* {approver_text} :tada:\n\nGo ahead and try your brand new permissions! :rocket:\n\nNote: This permission will be removed automatically after *{approval_request[request_id]['ttl_minutes']}*\n\nPermission policy statement JSON:\n```{approval_request[request_id]['policy_json']}```"
+                  "text": f"*Good news!* {approver_text} :tada:\n\nGo ahead and try your brand new permissions! :rocket:\n\nNote: This permission will be removed automatically after *{approval_request[request_id]['ttl_min']}*\n\nPermission policy statement JSON:\n```{approval_request[request_id]['policy_json']}```"
               }
           }
       ]
