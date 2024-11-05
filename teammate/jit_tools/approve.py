@@ -50,7 +50,7 @@ if __name__ == "__main__":
   decoded_load = [item.decode('utf-8').replace("'", '"') for item in res]
 
   print(decoded_load)
-  load = res[0].decode('utf8').replace("'", '"')
+  load = decoded_load[0].decode('utf8').replace("'", '"')
   # --- load into json
   approval_request = json.loads(load)
 
