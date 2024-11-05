@@ -69,7 +69,7 @@ approve = Tool(
         "SLACK_CHANNEL_ID",
     ],
     content="""
-
+pip install pytimeparse > /dev/null 2>&1
 pip install argparse > /dev/null 2>&1
 pip install redis > /dev/null 2>&1
 pip install slack_sdk > /dev/null 2>&1
