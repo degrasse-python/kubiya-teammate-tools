@@ -12,6 +12,7 @@ import boto3
 
 APPROVER_USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
 APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
+REQUEST_SLACK_CHANNEL = '#jit_requests'
 APPROVING_USERS = ['adsaunde1@gmail.com'] #  #TODO create list of named emails that can approve this request.
 SLACK_API_TOKEN = os.getenv('SLACK_API_TOKEN')
 JIT_API_KEY = os.getenv('JIT_API_KEY')
@@ -206,13 +207,13 @@ if __name__ == "__main__":
   slack_payload_in_thread = {
       "channel": slack_channel_id,
       "text": f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
-      "thread_ts": slack_thread_ts,
+      "thread_ts": approval_request[request_id]['slack_thread_ts'],
       "blocks": [
           {
               "type": "section",
               "text": {
                   "type": "mrkdwn",
-                  "text": f"*Good news!* {approver_text} :tada:\n\nGo ahead and try your brand new permissions! :rocket:\n\nNote: This permission will be removed automatically after *{approval_request[2]}*\n\nPermission policy statement JSON:\n```{approval_request[5]}```"
+                  "text": f"*Good news!* {approver_text} :tada:\n\nGo ahead and try your brand new permissions! :rocket:\n\nNote: This permission will be removed automatically after *{approval_request[request_id]['ttl']}*\n\nPermission policy statement JSON:\n```{approval_request[request_id]['policy_json']}```"
               }
           }
       ]
