@@ -106,7 +106,6 @@ if __name__ == "__main__":
     print("Creating Policy: ")
     session = boto3.Session(aws_access_key_id=AWS_ACCESS_KEY,
                             aws_secret_access_key=AWS_SECRET_KEY,
-                            region_name="us-east-1"  # Specify your region
                             )
     iam_client = session.client('iam')
     try:
