@@ -67,6 +67,13 @@ approve = Tool(
     env=[
         "SLACK_THREAD_TS", 
         "SLACK_CHANNEL_ID",
+        "AWS_ACCESS_KEY",
+        "AWS_SECRET_KEY",
+        'BACKEND_URL',
+        'BACKEND_PORT',
+        'BACKEND_DB',
+        'BACKEND_PASS',
+        'KUBIYA_JIT_WEBHOOK',
     ],
     content="""
 pip install pytimeparse > /dev/null 2>&1

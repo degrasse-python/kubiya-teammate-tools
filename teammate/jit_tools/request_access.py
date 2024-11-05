@@ -211,4 +211,4 @@ if __name__ == "__main__":
     print(f"✅ WAITING: Request submitted successfully and has been sent to an approver. Waiting for approval.")
   else:
     print(f"❌ Error sending webhook event: {response.status_code} - {response.text}")
-
+    sys.exit(1)

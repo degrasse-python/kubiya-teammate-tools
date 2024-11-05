@@ -1,5 +1,4 @@
 import os
-import sqlite3
 import sys
 from datetime import datetime, timedelta, timezone
 import requests
@@ -9,6 +8,7 @@ import argparse
 import redis
 from pytimeparse.timeparse import timeparse
 
+import boto3
 
 
 APPROVER_USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
@@ -20,6 +20,8 @@ BACKEND_URL = os.getenv('BACKEND_URL')
 BACKEND_PORT = os.getenv('BACKEND_PORT')
 BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
+AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
+AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
 
 
 # TODO make key available for this POV or use hardcoded json policy in meantime. 
@@ -49,17 +51,11 @@ if __name__ == "__main__":
   # --- load into json
   approval_request = json.loads(load)
 
-  # Parse command-line arguments
-  args = parser.parse_args()
-
-  # Get coordinates for the given city
-  name = args.name
-
   if not APPROVER_USER_EMAIL:
     print("❌ Missing APPROVER_USER_EMAIL environment variable")
     sys.exit(1)
 
-  if approval_action not in ['approved', 'rejected']:
+  if approval_action not in ['approved', 'rejected', 'denied']:
     print("❌ Error: Invalid approval action. Use 'approved' or 'rejected'.")
     sys.exit(1)
 
@@ -73,6 +69,8 @@ if __name__ == "__main__":
 
   print(f"✅ Approval request with ID {request_id} has been {approval_action}")
 
+
+
   if approval_action == "approved":
     duration_minutes = approval_request[request_id]['ttl_min']
 
@@ -85,6 +83,34 @@ if __name__ == "__main__":
     duration_timedelta = timedelta(seconds=duration_seconds)
 
     now = datetime.now(timezone.utc)  # Get the current time in UTC with timezone
+    schedule_time = now + duration_timedelta
+    try:
+      schedule_time = schedule_time.isoformat()
+    except Exception as e:
+      print(f"❌ Error: Could not place future deletion time in ISO format: {e}")
+      print(f"As a fallback, the policy will be removed in 1 hour.")
+      # Fallback to 1 hour
+      schedule_time = now + timedelta(hours=1)
+      schedule_time = schedule_time.isoformat()
+    
+    session = boto3.Session(aws_access_key_id=AWS_ACCESS_KEY,
+                            aws_secret_access_key=AWS_SECRET_KEY,
+                            region_name="us-east-1"  # Specify your region
+                            )
+    iam_client = session.client('iam')
+    try:
+      response = iam_client.create_policy(
+          PolicyName=approval_request[request_id]['policy_name'],
+          PolicyDocument=json.dumps(approval_request[request_id]['policy_json'])
+      )
+      print(f"Policy created successfully: {response['Policy']['Arn']}")
+    except iam_client.exceptions.EntityAlreadyExistsException:
+        print(f"Policy {approval_request[request_id]['policy_name']} already exists.")
+    except Exception as e:
+        print(f"Error creating policy: {e}")
+        sys.exit(1)
+
+    ### TODO --- Remove expired requests --- TODO ###
     schedule_time = now + duration_timedelta
     try:
       schedule_time = schedule_time.isoformat()
@@ -112,12 +138,6 @@ if __name__ == "__main__":
         },
         json=task_payload
     )
-
-    if response.status_code < 300:
-      print(f"✅ Scheduled task to remove policy `{approval_request[request_id]['policy_name']}` from permission set `{approval_request[request_id]['permission_set_name']}` in `{duration_minutes} minutes` (expires at `{schedule_time}`)")
-    else:
-      print(f"❌ Error: {response.status_code} - {response.text}")
-
   slack_channel_id = approval_request[request_id]['slack_channel_id']
   slack_thread_ts = approval_request[request_id]['slack_thread_ts']
 
@@ -199,14 +219,7 @@ if __name__ == "__main__":
     )
 
     ### TODO --- Remove expired requests --- TODO ###
-    
-    
-    #conn = sqlite3.connect('/sqlite_data/approval_requests.db')
-    #c = conn.cursor()
-    #c.execute("DELETE FROM approvals WHERE expires_at < ?", (datetime.utcnow().isoformat(),))
-    #conn.commit()
-    #conn.close()
-    
+  
     if slack_response.status_code < 300:
       print(f"✅ All done! Slack notification sent successfully")
     else:
