@@ -45,7 +45,7 @@ graph TD
 ### 2. 🔐 Policy Lifecycle Management
 
 ```mermaid
-sequenceDiagram
+graph TD
     participant U as User
     participant AI as AI Engine
     participant A as Admin
