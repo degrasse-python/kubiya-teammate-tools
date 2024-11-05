@@ -32,6 +32,7 @@ request_access_tool = Tool(
         'KUBIYA_JIT_WEBHOOK',
         'SLACK_API_TOKEN',
         'APPROVAL_SLACK_CHANNEL',
+        "KUBI_UUID"
         
     ],
     content="""

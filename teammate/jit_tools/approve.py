@@ -22,7 +22,7 @@ BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
 AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
-
+KUBI_UUID = os.getenv('KUBI_UUID')
 
 # TODO make key available for this POV or use hardcoded json policy in meantime. 
 
@@ -104,6 +104,8 @@ if __name__ == "__main__":
       schedule_time = now + timedelta(hours=1)
       schedule_time = schedule_time.isoformat()
     print("Creating Policy: ")
+
+    ### ----- BOTO3 ----- ###
     session = boto3.Session(aws_access_key_id=AWS_ACCESS_KEY,
                             aws_secret_access_key=AWS_SECRET_KEY,
                             )
@@ -140,13 +142,22 @@ if __name__ == "__main__":
         "organization_name": os.getenv("KUBIYA_USER_ORG"),
         "agent": os.getenv("KUBIYA_AGENT_PROFILE")
     }
+    sch_task ={
+                  'cron_string': "",
+                  'schedule_time': schedule_time, # time in iso format
+                  'channel_id': APPROVAL_SLACK_CHANNEL,
+                  'task_description': f"Delete iam role with arn {response['Policy']['Arn']}", # TODO replace name with ARN
+                  'selected_agent': KUBI_UUID
+              }
+    
+
     response = requests.post(
-        'https://api.kubiya.ai/api/v1/scheduled_tasks',
+        'https://api.kubiya.ai/api/v1/scheduled_tasks', # TODO change to the correct endpoint
         headers={
             'Authorization': f'UserKey {JIT_API_KEY}',
             'Content-Type': 'application/json'
         },
-        json=task_payload
+        json=sch_task
     )
   slack_channel_id = approval_request[request_id]['slack_channel_id']
   slack_thread_ts = approval_request[request_id]['slack_thread_ts']
