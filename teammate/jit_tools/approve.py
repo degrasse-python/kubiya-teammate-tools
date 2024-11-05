@@ -46,9 +46,12 @@ if __name__ == "__main__":
   # --- get byte list
   res = rd.smembers(request_id)
   # --- decode list member of bytes into str
-  load = res[0].decode('utf8').replace("'", '"')
+  decoded_load = [item.decode('utf-8').replace("'", '"') for item in res]
+
+  print(decoded_load)
+  # load = res[0].decode('utf8').replace("'", '"')
   # --- load into json
-  approval_request = json.loads(load)
+  approval_request = json.loads(decoded_load)
 
   if not APPROVER_USER_EMAIL:
     print("❌ Missing APPROVER_USER_EMAIL environment variable")
