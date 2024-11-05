@@ -51,18 +51,18 @@ sequenceDiagram
     participant A as Admin
     participant AWS as AWS IAM
 
-    U->>AI: Request Access
-    AI->>AI: Generate Policy
-    AI->>A: Request Approval
-    A->>AWS: Approve & Attach
+    U-->AI: Request Access
+    AI-->AI: Generate Policy
+    AI-->A: Request Approval
+    A-->AWS: Approve & Attach
     Note over AWS: Policy Active
-    AWS->>AWS: Monitor TTL
-    AWS->>AWS: Auto-Remove
-    AWS->>U: Access Expired
+    AWS-->AWS: Monitor TTL
+    AWS-->AWS: Auto-Remove
+    AWS-->U: Access Expired
 
-    style U fill:#f9d71c,stroke:#333,stroke-width:2px
-    style AI fill:#3498db,stroke:#333,stroke-width:2px
-    style A fill:#e67e22,stroke:#333,stroke-width:2px
+    style U   fill:#f9d71c,stroke:#333,stroke-width:2px
+    style AI  fill:#3498db,stroke:#333,stroke-width:2px
+    style A   fill:#e67e22,stroke:#333,stroke-width:2px
     style AWS fill:#2ecc71,stroke:#333,stroke-width:2px
 ```
 
