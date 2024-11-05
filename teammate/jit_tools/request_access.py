@@ -112,8 +112,7 @@ if __name__ == "__main__":
   }
 
   # unique_jit_id
-  json_id = request_id+':'+ \
-            str(approval_request['requested_at']) # USER_EMAIL+ \
+  json_id = request_id # USER_EMAIL+ \
             
 
   print(f"📝 Creating approval request")
