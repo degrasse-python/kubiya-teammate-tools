@@ -30,6 +30,7 @@ request_access_tool = Tool(
         'BACKEND_DB',
         'BACKEND_PASS',
         'KUBIYA_JIT_WEBHOOK',
+        'SLACK_API_TOKEN',
         'APPROVAL_SLACK_CHANNEL',
         
     ],
