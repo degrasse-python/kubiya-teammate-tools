@@ -12,7 +12,7 @@ import boto3
 
 APPROVER_USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
 APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL')
-APPROVING_USERS = os.getenv('APPROVING_USERS', '').split(',') #TODO create list of named emails that can approve this request.
+APPROVING_USERS = ['adsaunde1@gmail.com'] #  #TODO create list of named emails that can approve this request.
 SLACK_API_TOKEN = os.getenv('SLACK_API_TOKEN')
 JIT_API_KEY = os.getenv('JIT_API_KEY')
 BACKEND_URL = os.getenv('BACKEND_URL')
