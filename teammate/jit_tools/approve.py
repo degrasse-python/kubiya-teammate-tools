@@ -37,8 +37,9 @@ if __name__ == "__main__":
   request_id = args.request_id
   approval_action = args.approval_action
   users_test = [email.strip() for email in APPROVING_USERS if email.strip()]
-  print(f"users_test: {users_test}")
-  print(f"APPROVING_USERS: {APPROVING_USERS}")
+  
+  # print(f"users_test: {users_test}")
+  # print(f"APPROVING_USERS: {APPROVING_USERS}")
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
                   port=BACKEND_PORT, 
@@ -55,6 +56,7 @@ if __name__ == "__main__":
     load = decoded_load[0] #.decode('utf8').replace("'", '"')
     # --- load into json
     approval_request = json.loads(load)
+    print(f"APPROVING_USERS: {approval_request}")
   except Exception as e:
     print(e)
     sys.exit(1)
@@ -100,7 +102,7 @@ if __name__ == "__main__":
       # Fallback to 1 hour
       schedule_time = now + timedelta(hours=1)
       schedule_time = schedule_time.isoformat()
-    
+    print("Creating Policy: ")
     session = boto3.Session(aws_access_key_id=AWS_ACCESS_KEY,
                             aws_secret_access_key=AWS_SECRET_KEY,
                             region_name="us-east-1"  # Specify your region
@@ -203,7 +205,7 @@ if __name__ == "__main__":
 
   slack_payload_in_thread = {
       "channel": slack_channel_id,
-      "text": f"<@{approval_request[0]}>, your request has been {approval_action}.",
+      "text": f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
       "thread_ts": slack_thread_ts,
       "blocks": [
           {
