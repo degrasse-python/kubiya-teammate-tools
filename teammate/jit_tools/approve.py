@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
 
 
-  if approval_action == "approved":
+  if approval_action in ['approve', 'approved', 'rejected', 'denied']:
     duration_minutes = approval_request[request_id]['ttl_min']
 
     # Set the future time to remove the policy based on ISO format and duration
