@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
 
 
-  if approval_action in ['approve', 'approved', 'rejected', 'denied']:
+  if approval_action in ['approve', 'approved']:
     duration_minutes = approval_request[request_id]['ttl_min']
 
     # Set the future time to remove the policy based on ISO format and duration
@@ -163,6 +163,8 @@ if __name__ == "__main__":
         },
         json=sch_task
     )
+
+
   slack_channel_id = approval_request[request_id]['slack_channel_id']
   slack_thread_ts = approval_request[request_id]['slack_thread_ts']
 
@@ -198,16 +200,19 @@ if __name__ == "__main__":
 
   }
 
-  for slack_payload in [slack_payload_main_thread, slack_payload_in_thread]:
-    slack_response = requests.post(
-        "https://slack.com/api/chat.postMessage",
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {SLACK_API_TOKEN}'
-        },
-        json=slack_payload
-    )
-
+  try:
+    for slack_payload in [slack_payload_main_thread, slack_payload_in_thread]:
+      slack_response = requests.post(
+          "https://slack.com/api/chat.postMessage",
+          headers={
+              'Content-Type': 'application/json',
+              'Authorization': f'Bearer {SLACK_API_TOKEN}'
+          },
+          json=slack_payload
+      )
+  except Exception as e:
+    print(f'Exception occured" {e}')
+    
     ### TODO --- Remove expired requests --- TODO ###
   
     if slack_response.status_code < 300:
