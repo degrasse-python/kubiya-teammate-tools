@@ -50,9 +50,9 @@ if __name__ == "__main__":
   decoded_load = [item.decode('utf-8').replace("'", '"') for item in res]
 
   print(decoded_load)
-  # load = res[0].decode('utf8').replace("'", '"')
+  load = res[0].decode('utf8').replace("'", '"')
   # --- load into json
-  approval_request = json.loads(decoded_load)
+  approval_request = json.loads(load)
 
   if not APPROVER_USER_EMAIL:
     print("❌ Missing APPROVER_USER_EMAIL environment variable")
