@@ -209,6 +209,7 @@ if __name__ == "__main__":
 
   if response.status_code < 300:
     print(f"✅ WAITING: Request submitted successfully and has been sent to an approver. Waiting for approval.")
+    print(f'Response body: {response}'.format(response))
     event_response = response.json()
     webhook_url = event_response.get("webhook_url")
   else:
