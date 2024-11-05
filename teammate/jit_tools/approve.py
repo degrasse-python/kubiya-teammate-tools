@@ -71,7 +71,6 @@ if __name__ == "__main__":
     print(f"❌ No pending approval request found for request ID {request_id}")
     sys.exit(1)
 
-
   print(f"✅ Approval request with ID {request_id} has been {approval_action}")
 
   if approval_action == "approved":
