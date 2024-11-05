@@ -111,10 +111,11 @@ if __name__ == "__main__":
                             aws_secret_access_key=AWS_SECRET_KEY,
                             )
     iam_client = session.client('iam')
+    print(approval_request[request_id]['policy_json'])
     try:
       response = iam_client.create_policy(
           PolicyName=approval_request[request_id]['policy_name'],
-          PolicyDocument=json.dumps(approval_request[request_id]['policy_json'])
+          PolicyDocument=approval_request[request_id]['policy_json']
       )
       print(f"Boto3 response: {response}")
 
@@ -212,7 +213,7 @@ if __name__ == "__main__":
       )
   except Exception as e:
     print(f'Exception occured" {e}')
-    
+
     ### TODO --- Remove expired requests --- TODO ###
   
     if slack_response.status_code < 300:
