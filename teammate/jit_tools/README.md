@@ -52,7 +52,6 @@ graph TD
     AI[Generate Policy] --> AI[Generate Policy]
     AI[Request Approval] --> A[Request Approval]
     A[Request Approval] --> AWS[Approve & Attach]
-    Note over AWS: Policy Active
     AWS[Policy Active] --> AWS[Monitor TTL]
     AWS[Policy Active] --> AWS[Auto-Remove]
     AWS[Policy Active] --> U[Access Expired]
