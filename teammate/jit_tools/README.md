@@ -30,8 +30,8 @@ graph TD
     E --> F{✅ Approval Decision}
     F -->|Approved| F[🔗 Attach Policy]
     F -->|Rejected| G[❌ Notify Rejection]
-    H --> I[⏰ Set Expiry Timer]
-    I --> J[🗑️ Auto-Remove Policy]
+    G --> H[⏰ Set Expiry Timer]
+    H --> I[🗑️ Auto-Remove Policy]
     
     style A fill:#f9d71c,stroke:#333,stroke-width:2px
     style B fill:#f9a61c,stroke:#333,stroke-width:2px
