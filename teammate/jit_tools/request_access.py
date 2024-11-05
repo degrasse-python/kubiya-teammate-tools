@@ -45,15 +45,18 @@ def generate_policy(description, demo=True):
   else:
     ec2policy = {
             "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Sid": "Stmt1730549037760",
-                  "Action": "ec2:*",
-                  "Effect": "Allow",
-                  "Resource": "*"
+            "Statement": [{
+                "Effect": "Allow",
+                "Action": [
+                  "ec2:DescribeInstances", 
+                  "ec2:DescribeImages",
+                  "ec2:DescribeTags", 
+                  "ec2:DescribeSnapshots"
+                ],
+                "Resource": "*"
                 }
-              ]
-            }
+            ]
+          }
     return json.dumps(ec2policy)
     
 
