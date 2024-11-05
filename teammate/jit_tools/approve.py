@@ -183,35 +183,6 @@ if __name__ == "__main__":
   slack_payload_main_thread = {
       "channel": slack_channel_id,
       "text": f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
-      "blocks": [
-          {
-              "type": "section",
-              "text": {
-                  "type": "mrkdwn",
-                  "text": f"*Request {approval_action}* {action_emoji}\n \
-                  *Reason:* {approval_request[request_id]['purpose']}\n*Access:* {approval_request[request_id]['policy_name']} \
-                    for {approval_request[request_id]['ttl_min']}\n*Status:* {approver_text}\n<{permalink} \
-                    |View original conversation>\n\nYou can now try your brand new permissions! \
-                    :rocket:\n\nNote: This permission will be removed automatically after {approval_request[request_id]['ttl_min']} \
-                    minutes\n\nPermission policy statement JSON:\n```{approval_request[request_id]['policy_json']}```\n\n \
-                  *Next steps:* If you have any questions or need further assistance, please reach out to \
-                    <@{approval_request[request_id]['user_email']}>, you can now access the resources you requested with the permissions granted."
-              }
-          },
-          {
-              "type": "actions",
-              "elements": [
-                  {
-                      "type": "button",
-                      "text": {
-                          "type": "plain_text",
-                          "text": "↗️💬 View Thread"
-                      },
-                      "url": permalink
-                  }
-              ]
-          }
-      ],
   }
 
 
@@ -220,15 +191,7 @@ if __name__ == "__main__":
       "channel": slack_channel_id,
       "text": f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
       "thread_ts": approval_request[request_id]['slack_thread_ts'],
-      "blocks": [
-          {
-              "type": "section",
-              "text": {
-                  "type": "mrkdwn",
-                  "text": f"*Good news!* {approver_text} :tada:\n\nGo ahead and try your brand new permissions! :rocket:\n\nNote: This permission will be removed automatically after *{approval_request[request_id]['ttl_min']}*\n\nPermission policy statement JSON:\n```{approval_request[request_id]['policy_json']}```"
-              }
-          }
-      ]
+
   }
 
   for slack_payload in [slack_payload_main_thread, slack_payload_in_thread]:
