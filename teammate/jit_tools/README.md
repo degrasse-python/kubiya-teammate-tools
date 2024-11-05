@@ -48,7 +48,7 @@ graph TD
 graph TD
 
 
-    U --> AI: Request Access
+    U[Request Access] --> AI[Request Access]
     AI --> AI: Generate Policy
     AI --> A: Request Approval
     A --> AWS: Approve & Attach
