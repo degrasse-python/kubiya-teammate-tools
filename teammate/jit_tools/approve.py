@@ -30,7 +30,8 @@ if __name__ == "__main__":
 
   ### ----- Parse command-line arguments ----- ###
   # Get args from Kubiya
-  print(SLACK_API_TOKEN)
+  print(AWS_SECRET_KEY)
+  print(AWS_ACCESS_KEY)
   parser = argparse.ArgumentParser(description="Just in time request filing.")
   parser.add_argument("--request_id", required=True, help="Take the request_id from the webhook sent and use that as the parameter for the request.")
   parser.add_argument("--approval_action", required=True, help="The user will anwser the request with: 'approve request' or 'deny request'")
@@ -118,6 +119,7 @@ if __name__ == "__main__":
       print(f"Policy created successfully: {response['Policy']['Arn']}")
     except iam_client.exceptions.EntityAlreadyExistsException:
         print(f"Policy {approval_request[request_id]['policy_name']} already exists.")
+        sys.exit(1)
     except Exception as e:
         print(f"Error creating policy: {e}")
         sys.exit(1)
