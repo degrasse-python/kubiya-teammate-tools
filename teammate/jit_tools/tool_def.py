@@ -77,6 +77,7 @@ approve = Tool(
         'BACKEND_DB',
         'BACKEND_PASS',
         'KUBIYA_JIT_WEBHOOK',
+        'JIT_API_KEY'
     ],
     content="""
 pip install pytimeparse > /dev/null 2>&1
