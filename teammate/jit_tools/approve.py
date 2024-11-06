@@ -3,18 +3,16 @@ import sys
 from datetime import datetime, timedelta, timezone
 import requests
 import json
-
 import argparse
 import redis
 from pytimeparse.timeparse import timeparse
 import boto3
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
 
+# Constants and configuration
 APPROVER_USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
-APPROVAL_SLACK_CHANNEL = 'C07R1TGSDPF' #os.getenv('APPROVAL_SLACK_CHANNEL')
+APPROVAL_SLACK_CHANNEL = os.getenv('APPROVAL_SLACK_CHANNEL', 'C07R1TGSDPF')  # Default channel ID if not set
 REQUEST_SLACK_CHANNEL = '#jit_requests'
-APPROVING_USERS = ['adsaunde1@gmail.com'] #  #TODO create list of named emails that can approve this request.
+APPROVING_USERS = ['adsaunde1@gmail.com']  # TODO: Replace with actual approver emails
 SLACK_API_TOKEN = os.getenv('SLACK_API_TOKEN')
 JIT_API_KEY = os.getenv('JIT_API_KEY')
 BACKEND_URL = os.getenv('BACKEND_URL')
@@ -23,10 +21,10 @@ BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
 AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
-KUBI_UUID = '760b34a8-bc05-4224-9137-bffc43bef24c' #os.getenv('KUBI_UUID')
+KUBI_UUID = os.getenv('KUBI_UUID', '760b34a8-bc05-4224-9137-bffc43bef24c')  # Default UUID if not set
 
-# TODO make key available for this POV or use hardcoded json policy in meantime. 
 def send_slack_message(channel_id, message, slack_token):
+    """Send a message to a Slack channel."""
     url = "https://slack.com/api/chat.postMessage"
     headers = {
         "Content-Type": "application/json",
@@ -39,219 +37,149 @@ def send_slack_message(channel_id, message, slack_token):
     
     response = requests.post(url, headers=headers, json=data)
     if response.status_code == 200 and response.json().get("ok"):
-        print(f"✅ All done! Slack notification sent successfully")
+        print("✅ Slack notification sent successfully")
     else:
         print(f"❌ Error sending Slack notification: {response.status_code} - {response.text}")
+        sys.exit(1)
 
+def parse_arguments():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description="Just-in-time request processing.")
+    parser.add_argument("--request_id", required=True, help="The request ID from the webhook.")
+    parser.add_argument("--approval_action", required=True, help="Approval action: 'approve' or 'deny'.")
+    args = parser.parse_args()
+    return args.request_id, args.approval_action.lower()
 
-def SendSlackMessage(token, 
-                      channel_id, 
-                      thread_ts,
-                      text):
-  client = WebClient(token=token)
-  try:
-    response = client.chat_postMessage(
-        channel=channel_id,
-        thread_ts=thread_ts,
-        text=text
+def validate_environment_variables():
+    """Ensure all required environment variables are set."""
+    required_vars = [
+        'SLACK_API_TOKEN', 'JIT_API_KEY', 'BACKEND_URL',
+        'BACKEND_PORT', 'BACKEND_PASS', 'AWS_ACCESS_KEY',
+        'AWS_SECRET_KEY', 'APPROVER_USER_EMAIL'
+    ]
+    missing_vars = [var for var in required_vars if not globals().get(var)]
+    if missing_vars:
+        print(f"❌ Missing required environment variables: {', '.join(missing_vars)}")
+        sys.exit(1)
+
+def create_redis_client():
+    """Create a Redis client."""
+    return redis.Redis(
+        host=BACKEND_URL,
+        port=BACKEND_PORT,
+        password=BACKEND_PASS,
     )
-    return response
-  except SlackApiError as e:
-    print(f"Error sending file to Slack thread: {e}")
-    raise
+
+def retrieve_approval_request(rd, request_id):
+    """Retrieve the approval request from Redis."""
+    try:
+        res = rd.smembers(str(request_id))
+        decoded_load = [item.decode('utf-8').replace("'", '"') for item in res]
+        load = decoded_load[0]
+        approval_request = json.loads(load)
+        return approval_request
+    except Exception as e:
+        print(f"❌ Error retrieving approval request: {e}")
+        sys.exit(1)
+
+def validate_inputs_and_permissions(approval_action, approval_request, request_id):
+    """Validate user permissions and request data."""
+    if approval_action not in ['approve', 'approved', 'rejected', 'deny', 'denied']:
+        print("❌ Invalid approval action. Use 'approve' or 'deny'.")
+        sys.exit(1)
+    if APPROVER_USER_EMAIL not in APPROVING_USERS:
+        print(f"❌ User {APPROVER_USER_EMAIL} is not authorized to approve this request.")
+        sys.exit(1)
+    if not approval_request:
+        print(f"❌ No pending approval request found for request ID {request_id}.")
+        sys.exit(1)
+    print(f"✅ Approval request with ID {request_id} has been {approval_action}.")
+
+def create_iam_policy(approval_request, request_id):
+    """Create an IAM policy using Boto3."""
+    session = boto3.Session(
+        aws_access_key_id=AWS_ACCESS_KEY,
+        aws_secret_access_key=AWS_SECRET_KEY,
+    )
+    iam_client = session.client('iam')
+    try:
+        response = iam_client.create_policy(
+            PolicyName=approval_request[request_id]['policy_name'],
+            PolicyDocument=approval_request[request_id]['policy_json']
+        )
+        policy_arn = response['Policy']['Arn']
+        print(f"✅ Policy created successfully: {policy_arn}")
+        return policy_arn
+    except iam_client.exceptions.EntityAlreadyExistsException:
+        print(f"❌ Policy {approval_request[request_id]['policy_name']} already exists.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Error creating policy: {e}")
+        sys.exit(1)
+
+def schedule_policy_deletion(approval_request, request_id, policy_arn):
+    """Schedule the policy for deletion after a specified duration."""
+    try:
+        now = datetime.now(timezone.utc)
+        duration_minutes = approval_request[request_id]['ttl_min']
+        duration_seconds = timeparse(f"{duration_minutes}m")
+        if duration_seconds is None:
+            raise ValueError("Invalid duration format")
+        schedule_time_iso = (now + timedelta(seconds=duration_seconds)).isoformat()
+    except Exception as e:
+        print(f"❌ Error calculating policy expiration time: {e}")
+        print("Fallback: Policy will be removed in 1 hour.")
+        schedule_time_iso = (now + timedelta(hours=1)).isoformat()
+    sch_task = {
+        'cron_string': "",
+        'schedule_time': schedule_time_iso,
+        'channel_id': APPROVAL_SLACK_CHANNEL,
+        'task_description': f"Delete IAM policy with ARN {policy_arn}",
+        'selected_agent': KUBI_UUID
+    }
+    print(f"Scheduling task: {sch_task}")
+    try:
+        response = requests.post(
+            'https://api.kubiya.ai/api/v1/scheduled_tasks',
+            headers={
+                'Authorization': f'UserKey {JIT_API_KEY}',
+                'Content-Type': 'application/json'
+            },
+            json=sch_task
+        )
+        if response.status_code != 200:
+            print(f"❌ Error scheduling task: {response.status_code} - {response.text}")
+            sys.exit(1)
+        print("✅ Task scheduled successfully")
+    except Exception as e:
+        print(f"❌ Exception while scheduling task: {e}")
+        sys.exit(1)
+
+def main():
+    """Main function to process the approval request."""
+    # Parse command-line arguments
+    request_id, approval_action = parse_arguments()
+
+    # Validate environment variables
+    validate_environment_variables()
+
+    # Create Redis client and retrieve approval request
+    rd = create_redis_client()
+    approval_request = retrieve_approval_request(rd, request_id)
+
+    # Validate inputs and permissions
+    validate_inputs_and_permissions(approval_action, approval_request, request_id)
+    
+    # Process approval action
+    if approval_action in ['approve', 'approved']:
+        policy_arn = create_iam_policy(approval_request, request_id)
+        schedule_policy_deletion(approval_request, request_id, policy_arn)
+    
+    # Send Slack notification
+    slack_channel_id = approval_request[request_id]['slack_channel_id']
+    user_email = approval_request[request_id]['user_email']
+    message = f"<@{user_email}>, your request has been {approval_action}."
+    send_slack_message(slack_channel_id, message, SLACK_API_TOKEN)
 
 if __name__ == "__main__":
-
-  ### ----- Parse command-line arguments ----- ###
-  # Get args from Kubiya
-  print(f'Slack API Token: {SLACK_API_TOKEN}')
-  parser = argparse.ArgumentParser(description="Just in time request filing.")
-  parser.add_argument("--request_id", required=True, help="Take the request_id from the webhook sent and use that as the parameter for the request.")
-  parser.add_argument("--approval_action", required=True, help="The user will anwser the request with: 'approve request' or 'deny request'")
-
-  args = parser.parse_args()
-  request_id = args.request_id
-  approval_action = args.approval_action
-  
-  # print(f"users_test: {users_test}")
-  # print(f"APPROVING_USERS: {APPROVING_USERS}")
-  ### ----- Redis Client ----- ###
-  rd = redis.Redis(host=BACKEND_URL, 
-                  port=BACKEND_PORT, 
-                  password=BACKEND_PASS,)
-
-  # --- get byte list
-  try:
-    print(f"Request ID: {request_id}")
-    res = rd.smembers(str(request_id))
-    # --- decode list member of bytes into str
-    decoded_load = [item.decode('utf-8').replace("'", '"') for item in res]
-
-    print(decoded_load)
-    load = decoded_load[0] #.decode('utf8').replace("'", '"')
-    # --- load into json
-    approval_request = json.loads(load)
-    print(f"APPROVING_USERS: {approval_request}")
-  except Exception as e:
-    print(e)
-    sys.exit(1)
-
-  if not APPROVER_USER_EMAIL:
-    print("❌ Missing APPROVER_USER_EMAIL environment variable")
-    sys.exit(1)
-
-  if approval_action not in ['approve', 'approved', 'rejected', 'denied']:
-    print("❌ Error: Invalid approval action. Use 'approved' or 'rejected'.")
-    sys.exit(1)
-
-  if APPROVER_USER_EMAIL not in APPROVING_USERS:
-    print(f"❌ User {APPROVER_USER_EMAIL} is not authorized to approve this request")
-    sys.exit(1)
-
-  if not approval_request:
-    print(f"❌ No pending approval request found for request ID {request_id}")
-    sys.exit(1)
-
-  print(f"✅ Approval request with ID {request_id} has been {approval_action}")
-
-
-
-  if approval_action in ['approve', 'approved']:
-    print("Creating Policy: ")
-
-    ### ----- BOTO3 ----- ###
-    session = boto3.Session(aws_access_key_id=AWS_ACCESS_KEY,
-                            aws_secret_access_key=AWS_SECRET_KEY,
-                            )
-    iam_client = session.client('iam')
-    print(approval_request[request_id]['policy_json'])
-    try:
-      response = iam_client.create_policy(
-          PolicyName=approval_request[request_id]['policy_name'],
-          PolicyDocument=approval_request[request_id]['policy_json']
-      )
-      print(f"Boto3 response: {response}")
-
-      print(f"Policy created successfully: {response['Policy']['Arn']}")
-    except iam_client.exceptions.EntityAlreadyExistsException:
-        print(f"Policy {approval_request[request_id]['policy_name']} already exists.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error creating policy: {e}")
-        sys.exit(1)
-
-    ### TODO --- Remove expired requests --- TODO ###
-  
-    
-    slack_channel_id = approval_request[request_id]['slack_channel_id']
-    slack_thread_ts = approval_request[request_id]['slack_thread_ts']
-    try:
-      # Get the current time in UTC with timezone
-      now = datetime.now(timezone.utc)  
-      # policy duration
-      duration_minutes = approval_request[request_id]['ttl_min']
-
-      # Set the future time to remove the policy based on ISO format and duration
-      duration_seconds = timeparse(f"{duration_minutes}m")
-      # check for none 
-      if duration_seconds is None:
-        raise ValueError("Invalid duration format")
-
-      # Convert duration_seconds to a timedelta
-      duration_timedelta = timedelta(seconds=duration_seconds)
-      # set scheduled time
-      schedule_time = now + duration_timedelta
-      schedule_time = schedule_time.isoformat()
-
-    except Exception as e:
-      print(f"❌ Error: Could not place future deletion time in ISO format: {e}")
-      print(f"As a fallback, the policy will be removed in 1 hour.")
-      # Fallback to 1 hour
-      now = datetime.now(timezone.utc)
-      schedule_time = now + timedelta(hours=1)
-      schedule_time = schedule_time.isoformat()
-    
-    
-    sch_task ={
-                'cron_string': "",
-                'schedule_time': schedule_time, # time in iso format
-                'channel_id': APPROVAL_SLACK_CHANNEL,
-                'task_description': f"Delete iam role with arn {response['Policy']['Arn']}", # TODO replace name with ARN
-                'selected_agent': KUBI_UUID
-              }
-    
-    print(f'Scheduled task : {sch_task}')
-    print(f"Sending scheduled task for policy: {response['Policy']['Arn']}")
-    try:
-      response = requests.post(
-                    'https://api.kubiya.ai/api/v1/scheduled_tasks', # TODO change to the correct endpoint
-                    headers={
-                        'Authorization': f'UserKey {JIT_API_KEY}',
-                        'Content-Type': 'application/json'
-                    },
-                    json=sch_task
-                  )
-      print(f'Scheduled Task Response: {response}')
-    except Exception as e:
-      print(f'Exception was thrown: {e}')
-    slack_payload_main_thread = {
-      "channel": slack_channel_id,
-      "text": f"<@{approval_request[request_id]['user_email']}>, your request for policy: {response['Policy']['Arn']} has been {approval_action}.",
-    }
-    send_slack_message(approval_request[request_id]['slack_channel_id'],
-                     f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
-                     SLACK_API_TOKEN
-                     )
-
-  # Get permalink
-  permalink_response = requests.get(
-      "https://slack.com/api/chat.getPermalink",
-      params={
-          'channel': slack_channel_id,
-          'message_ts': slack_thread_ts
-      },
-      headers={
-          'Authorization': f'Bearer {SLACK_API_TOKEN}'
-      }
-  )
-
-  permalink = permalink_response.json().get("permalink")
-
-  action_emoji = ":white_check_mark:" if approval_action == "approved" else ":x:"
-  action_text = "APPROVED" if approval_action == "approved" else "REJECTED"
-  approver_text = f"<@{APPROVER_USER_EMAIL}> *{action_text}* your access request {action_emoji}"
-
-  
-
-  
-  '''
-  try:
-    for slack_payload in [slack_payload_main_thread, slack_payload_in_thread]:
-      slack_response = requests.post(
-            "https://slack.com/api/chat.postMessage",
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {SLACK_API_TOKEN}'
-            },
-            json=slack_payload
-        )
-        '''
-  
-  print(f"✅ All done! Slack notification sent successfully")
-    # else:
-  '''
-  response = SendSlackMessage(SLACK_API_TOKEN, 
-                      approval_request[request_id]['slack_channel_id'], 
-                      approval_request[request_id]['slack_thread_ts'],
-                      f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.")
-  
-  except Exception as e:
-    print(f'Exception occured" {e}')
-
-    ### TODO --- Remove expired requests --- TODO ###
-  
-    # if slack_response.status_code < 300:
-    print(f"✅ All done! Slack notification sent successfully")
-    # else:
-    print(f"❌ Error sending Slack notification: {slack_response.status_code} - {slack_response.text}")
-  '''
+    main()
