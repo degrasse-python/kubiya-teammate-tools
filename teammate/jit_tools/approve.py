@@ -8,7 +8,8 @@ import argparse
 import redis
 from pytimeparse.timeparse import timeparse
 import boto3
-
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 
 APPROVER_USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
 APPROVAL_SLACK_CHANNEL = 'C07R1TGSDPF' #os.getenv('APPROVAL_SLACK_CHANNEL')
@@ -42,6 +43,22 @@ def send_slack_message(channel_id, message, slack_token):
     else:
         print(f"❌ Error sending Slack notification: {response.status_code} - {response.text}")
 
+
+def SendSlackMessage(token, 
+                      channel_id, 
+                      thread_ts,
+                      text):
+  client = WebClient(token=token)
+  try:
+    response = client.chat_postMessage(
+        channel=channel_id,
+        thread_ts=thread_ts,
+        text=text
+    )
+    return response
+  except SlackApiError as e:
+    print(f"Error sending file to Slack thread: {e}")
+    raise
 
 if __name__ == "__main__":
 
@@ -226,11 +243,10 @@ if __name__ == "__main__":
             json=slack_payload
         )
         '''
-    
-  send_slack_message('D07R08SHLT0', 
-                       f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.", 
-                       SLACK_API_TOKEN
-                       )
+  response = SendSlackMessage(SLACK_API_TOKEN, 
+                      approval_request[request_id]['slack_channel_id'], 
+                      approval_request[request_id]['slack_thread_ts'],
+                      f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.")
   print(f"✅ All done! Slack notification sent successfully")
     # else:
   '''except Exception as e:

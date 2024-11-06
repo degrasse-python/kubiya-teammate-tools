@@ -69,6 +69,7 @@ approve = Tool(
     env=[
         "SLACK_THREAD_TS", 
         "SLACK_CHANNEL_ID",
+        'SLACK_API_TOKEN',
         "AWS_ACCESS_KEY",
         "AWS_SECRET_KEY",
         'BACKEND_URL',
