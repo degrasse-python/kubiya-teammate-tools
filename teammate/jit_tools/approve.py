@@ -163,16 +163,20 @@ if __name__ == "__main__":
                 'selected_agent': KUBI_UUID
               }
     
-    print(f'cheduled task : {sch_task}')
+    print(f'Scheduled task : {sch_task}')
     print(f"Sending scheduled task for policy: {response['Policy']['Arn']}")
-    response = requests.post(
-                  'https://api.kubiya.ai/api/v1/scheduled_tasks', # TODO change to the correct endpoint
-                  headers={
-                      'Authorization': f'UserKey {JIT_API_KEY}',
-                      'Content-Type': 'application/json'
-                  },
-                  json=sch_task
-                )
+    try:
+      response = requests.post(
+                    'https://api.kubiya.ai/api/v1/scheduled_tasks', # TODO change to the correct endpoint
+                    headers={
+                        'Authorization': f'UserKey {JIT_API_KEY}',
+                        'Content-Type': 'application/json'
+                    },
+                    json=sch_task
+                  )
+      print(f'Scheduled Task Response: {response}')
+    except Exception as e:
+      print(f'Exception was thrown: {e}')
 
   slack_channel_id = approval_request[request_id]['slack_channel_id']
   slack_thread_ts = approval_request[request_id]['slack_thread_ts']
