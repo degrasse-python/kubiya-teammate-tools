@@ -25,6 +25,7 @@ request_access_tool = Tool(
     env=[
         "SLACK_THREAD_TS", 
         "SLACK_CHANNEL_ID",
+        'SLACK_API_TOKEN',
         'BACKEND_URL',
         'BACKEND_PORT',
         'BACKEND_DB',
@@ -34,7 +35,6 @@ request_access_tool = Tool(
         "KUBI_UUID"
         
     ],
-    secrets=['SLACK_API_TOKEN'],
     content="""
 
 pip install argparse > /dev/null 2>&1
