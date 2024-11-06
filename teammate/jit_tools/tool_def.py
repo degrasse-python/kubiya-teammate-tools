@@ -34,6 +34,7 @@ request_access_tool = Tool(
         "KUBI_UUID"
         
     ],
+    secrets=['SLACK_API_TOKEN'],
     content="""
 
 pip install argparse > /dev/null 2>&1
