@@ -242,13 +242,19 @@ if __name__ == "__main__":
             json=slack_payload
         )
         '''
+  send_slack_message(approval_request[request_id]['slack_channel_id'],
+                     f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
+                     SLACK_API_TOKEN
+                     )
+  print(f"✅ All done! Slack notification sent successfully")
+    # else:
+  '''
   response = SendSlackMessage(SLACK_API_TOKEN, 
                       approval_request[request_id]['slack_channel_id'], 
                       approval_request[request_id]['slack_thread_ts'],
                       f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.")
-  print(f"✅ All done! Slack notification sent successfully")
-    # else:
-  '''except Exception as e:
+  
+  except Exception as e:
     print(f'Exception occured" {e}')
 
     ### TODO --- Remove expired requests --- TODO ###
