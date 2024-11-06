@@ -143,7 +143,8 @@ if __name__ == "__main__":
     ### TODO --- Remove expired requests --- TODO ###
   
     
-    
+    slack_channel_id = approval_request[request_id]['slack_channel_id']
+    slack_thread_ts = approval_request[request_id]['slack_thread_ts']
     try:
       # Get the current time in UTC with timezone
       now = datetime.now(timezone.utc)  
@@ -193,9 +194,14 @@ if __name__ == "__main__":
       print(f'Scheduled Task Response: {response}')
     except Exception as e:
       print(f'Exception was thrown: {e}')
-
-  slack_channel_id = approval_request[request_id]['slack_channel_id']
-  slack_thread_ts = approval_request[request_id]['slack_thread_ts']
+    slack_payload_main_thread = {
+      "channel": slack_channel_id,
+      "text": f"<@{approval_request[request_id]['user_email']}>, your request for policy: {response['Policy']['Arn']} has been {approval_action}.",
+    }
+    send_slack_message(approval_request[request_id]['slack_channel_id'],
+                     f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
+                     SLACK_API_TOKEN
+                     )
 
   # Get permalink
   permalink_response = requests.get(
@@ -215,19 +221,7 @@ if __name__ == "__main__":
   action_text = "APPROVED" if approval_action == "approved" else "REJECTED"
   approver_text = f"<@{APPROVER_USER_EMAIL}> *{action_text}* your access request {action_emoji}"
 
-  slack_payload_main_thread = {
-      "channel": slack_channel_id,
-      "text": f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
-  }
-
-
-
-  slack_payload_in_thread = {
-      "channel": slack_channel_id,
-      "text": f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
-      "thread_ts": approval_request[request_id]['slack_thread_ts'],
-
-  }
+  
 
   
   '''
@@ -242,10 +236,7 @@ if __name__ == "__main__":
             json=slack_payload
         )
         '''
-  send_slack_message(approval_request[request_id]['slack_channel_id'],
-                     f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.",
-                     SLACK_API_TOKEN
-                     )
+  
   print(f"✅ All done! Slack notification sent successfully")
     # else:
   '''
