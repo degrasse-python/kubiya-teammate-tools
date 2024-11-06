@@ -214,15 +214,18 @@ if __name__ == "__main__":
   }
 
   
-  '''try:for slack_payload in [slack_payload_main_thread, slack_payload_in_thread]:
-    slack_response = requests.post(
-        "https://slack.com/api/chat.postMessage",
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {SLACK_API_TOKEN}'
-        },
-        json=slack_payload
-    )'''
+  '''
+  try:
+    for slack_payload in [slack_payload_main_thread, slack_payload_in_thread]:
+      slack_response = requests.post(
+            "https://slack.com/api/chat.postMessage",
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {SLACK_API_TOKEN}'
+            },
+            json=slack_payload
+        )
+        '''
     
   send_slack_message('D07R08SHLT0', 
                        f"<@{approval_request[request_id]['user_email']}>, your request has been {approval_action}.", 
