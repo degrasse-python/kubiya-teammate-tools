@@ -64,8 +64,7 @@ if __name__ == "__main__":
 
   ### ----- Parse command-line arguments ----- ###
   # Get args from Kubiya
-  print(AWS_SECRET_KEY)
-  print(AWS_ACCESS_KEY)
+  print(f'Slack API Token: {SLACK_API_TOKEN}')
   parser = argparse.ArgumentParser(description="Just in time request filing.")
   parser.add_argument("--request_id", required=True, help="Take the request_id from the webhook sent and use that as the parameter for the request.")
   parser.add_argument("--approval_action", required=True, help="The user will anwser the request with: 'approve request' or 'deny request'")
