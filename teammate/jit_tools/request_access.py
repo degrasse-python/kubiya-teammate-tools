@@ -29,6 +29,11 @@ GPT_API_KEY= os.getenv('GPT_API_KEY')
 GPT_ENDPOINT=os.getenv('GPT_ENDPOINT')
 
 
+class StripArgument(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values.strip())
+
+
 def generate_policy(description, demo=True):
   print("✨ Generating least privileged policy JSON...")
   if not demo:
@@ -95,17 +100,18 @@ if __name__ == "__main__":
   parser.add_argument("--purpose", required=True, help="Purpose of the request for just in time permissions.")
   parser.add_argument("--ttl", required=True, help="The time to live (ttl) for the permissions request.")
   parser.add_argument("--permission_set_name", required=True, help="The permissions set name for permissions request.")
-  parser.add_argument("--policy_description", required=True, help="The policy description for the just in time request.")
-  parser.add_argument("--policy_name", required=True, help="The policy name for the just in time request.")
+  parser.add_argument("--policy_description", 
+                      required=True,
+                      nargs='+', # action=StripArgument,
+                      help="The policy description for the just in time request.")
   args = parser.parse_args()
 
   # Parameters
   purpose = args.purpose
   ttl = args.ttl
   permission_set_name = args.permission_set_name
-  policy_description = args.policy_description
-  policy_name = args.policy_name
-
+  policy_description = ' '.join(args.policy_description)
+  policy_name = create_policy_name() # args.policy_namea
   policy_json = generate_policy(policy_description)
 
   try:
