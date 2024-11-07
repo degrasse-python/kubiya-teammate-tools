@@ -193,7 +193,10 @@ def main():
     # Send Slack notification
     slack_channel_id = approval_request[request_id]['slack_channel_id']
     user_email = approval_request[request_id]['user_email']
-    message = f"<@{user_email}>, your request has been {approval_action}."
+    message = f"<@{user_email}>, your request has been {approval_action}. \n \
+                Policy ARN: {policy_arn} \n \
+                Here is the policy requested: \n \
+                {approval_request} \n\n\n"
     send_slack_message(slack_channel_id, message, SLACK_API_TOKEN)
 
 if __name__ == "__main__":

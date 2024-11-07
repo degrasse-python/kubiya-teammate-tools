@@ -102,7 +102,7 @@ if __name__ == "__main__":
   parser.add_argument("--permission_set_name", required=True, help="The permissions set name for permissions request.")
   parser.add_argument("--policy_description", 
                       required=True,
-                      nargs='+', # action=StripArgument,
+                      nargs='+', # action=StripArgument ,
                       help="The policy description for the just in time request.")
   args = parser.parse_args()
 
