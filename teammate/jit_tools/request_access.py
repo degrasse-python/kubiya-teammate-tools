@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 from datetime import datetime, timedelta
 import requests
 import uuid
@@ -10,6 +9,8 @@ import argparse
 import redis
 from redis.exceptions import ResponseError, ConnectionError
 from litellm import completion
+import boto3
+import asyncio
 
 USER_EMAIL = os.getenv('KUBIYA_USER_EMAIL')
 SLACK_CHANNEL_ID = os.getenv('SLACK_CHANNEL_ID')
@@ -24,6 +25,8 @@ BACKEND_URL = os.getenv('BACKEND_URL')
 BACKEND_PORT = os.getenv('BACKEND_PORT')
 BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
+GPT_API_KEY= os.getenv('GPT_API_KEY')
+GPT_ENDPOINT=os.getenv('GPT_ENDPOINT')
 
 
 def generate_policy(description, demo=True):
@@ -31,14 +34,19 @@ def generate_policy(description, demo=True):
   if not demo:
     messages = [{"content": f"Generate a least privileged policy JSON for the following description: {description} - return the JSON object.", "role": "user"}]
     try:
-      response = completion(model="gpt-4o", messages=messages) # TODO change the model to a hugging face model.
+      response = completion(model="gpt-4o", 
+                            messages=messages,
+                            api_key=GPT_API_KEY,
+                            base_url=GPT_ENDPOINT
+                            ) 
       if not response['choices']:
         print("❌ Error: No response from OpenAI API. Could not generate policy.")
         sys.exit(1)
       content = response['choices'][0]['message']['content']
       start = content.find('{')
       end = content.rfind('}')
-      return content[start:end+1]
+      policy = content[start:end+1] if start != -1 and end != -1 else content
+      return json.loads(policy)
     except Exception as e:
       print(f"❌ Policy generation failed: {e}")
       sys.exit(1)
@@ -59,6 +67,25 @@ def generate_policy(description, demo=True):
           }
     return json.dumps(ec2policy)
     
+
+def validate_aws_policy(policy_document):
+  """Ensure all required environment variables are set."""
+  iam_client = boto3.client('iam')
+  policy_document_json = json.dumps(policy_document)
+  try:
+  # Attempt simulation with an empty list of actions, which won’t simulate but will validate structure
+    response = iam_client.simulate_custom_policy(
+        PolicyInputList=[policy_document_json],
+        ActionNames=[],
+    )
+    print("Policy structure is valid.")
+  except Exception as e:
+      print("Policy structure is invalid:", e)
+
+def create_policy_name():
+  name = 'kubiya-jit-' + str(uuid.uuid4())
+  return name
+
 
 if __name__ == "__main__":
 

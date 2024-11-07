@@ -47,7 +47,7 @@ pip install litellm==1.49.5 > /dev/null 2>&1
 pip install pillow==11.0.0 > /dev/null 2>&1
 pip install tempfile > /dev/null 2>&1
 
-python /tmp/request_access.py --purpose $purpose --ttl $ttl --permission_set_name $permission_set_name --policy_description $policy_description --policy_name $policy_name
+python /tmp/request_access.py --purpose $purpose --ttl $ttl --permission_set_name $permission_set_name --policy_description $policy_description
 """,
     with_files=[
         FileSpec(
@@ -91,6 +91,7 @@ pip install langchain_core > /dev/null 2>&1
 pip install litellm==1.49.5 > /dev/null 2>&1
 pip install pillow==11.0.0 > /dev/null 2>&1
 pip install tempfile > /dev/null 2>&1
+pip install asyncio > /dev/null 2>&1
 
 python /tmp/approve.py --request_id $request_id --approval_action $approval_action
 """,

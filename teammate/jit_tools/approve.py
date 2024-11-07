@@ -62,6 +62,21 @@ def validate_environment_variables():
         print(f"❌ Missing required environment variables: {', '.join(missing_vars)}")
         sys.exit(1)
 
+def validate_aws_policy(policy_document):
+  """Ensure all required environment variables are set."""
+  iam_client = boto3.client('iam')
+  policy_document_json = json.dumps(policy_document)
+  try:
+  # Attempt simulation with an empty list of actions, which won’t simulate but will validate structure
+    response = iam_client.simulate_custom_policy(
+        PolicyInputList=[policy_document_json],
+        ActionNames=[],
+    )
+    print("Policy structure is valid.")
+  except Exception as e:
+      print("Policy structure is invalid:", e)
+      
+
 def create_redis_client():
     """Create a Redis client."""
     return redis.Redis(
