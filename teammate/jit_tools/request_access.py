@@ -77,7 +77,9 @@ def generate_policy(description, demo=False):
 
 def validate_aws_policy(policy_document):
   """Ensure all required environment variables are set."""
-  iam_client = boto3.client('iam')
+  iam_client = boto3.client('iam',
+                        aws_access_key_id=AWS_ACCESS_KEY_ID,
+                        aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
   policy_document_json = json.dumps(policy_document)
   try:
   # Attempt simulation with an empty list of actions, which won’t simulate but will validate structure
