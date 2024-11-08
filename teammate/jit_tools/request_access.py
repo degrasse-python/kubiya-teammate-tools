@@ -90,7 +90,7 @@ def validate_aws_policy(policy_document):
       print("Policy structure is invalid:", e)
       raise
 
-def create_policy_name():
+def create_request_id():
   name = 'kubiya-jit-' + str(uuid.uuid4())
   return name
 
@@ -134,25 +134,12 @@ if __name__ == "__main__":
   ttl = args.ttl
   permission_set_name = args.permission_set_name
   policy_description = ' '.join(args.policy_description)
-  policy_name = create_policy_name()
+  policy_name = create_request_id()
+  request_id = policy_name
   llm_policy = generate_policy(policy_description)
   policy_json = json.loads(llm_policy)
   validate_aws_policy(policy_json)
-  
-  try:
-    if ttl[-1] == 'm':
-      ttl_minutes = int(ttl[:-1])
-    elif ttl[-1] == 'h':
-      ttl_minutes = int(ttl[:-1]) * 60
-    elif ttl[-1] == 'd':
-      ttl_minutes = int(ttl[:-1]) * 60 * 24
-    else:
-      raise ValueError("Unsupported TTL format")
-  except ValueError as e:
-    print(f"❌ Error: {e}. Defaulting to 30 days.")
-    ttl_minutes = 30 * 24 * 60
-
-  request_id = str(uuid.uuid4())
+  ttl_minutes = time_format(ttl)
   
   approval_request = {
       'user_email': USER_EMAIL,
@@ -188,7 +175,7 @@ if __name__ == "__main__":
                       }
   
   print(f"✅ Generated least privileged policy ")
-  print(f"✅ For JSON ID:\n\n{json_id}")
+  print(f"✅ For Request ID:\n\n{request_id}")
   print(BACKEND_DB, BACKEND_PORT, BACKEND_URL, BACKEND_PASS)
 
   ### ----- Redis Client ----- ###
