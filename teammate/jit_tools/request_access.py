@@ -27,7 +27,8 @@ BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
 GPT_API_KEY=os.getenv('GPT_API_KEY')
 GPT_ENDPOINT=os.getenv('GPT_ENDPOINT')
-
+os.environ['AWS_ACCESS_KEY_ID']=os.getenv('AWS_ACCESS_KEY_ID')
+os.environ['AWS_SECRET_ACCESS_KEY']=os.getenv('AWS_SECRET_ACCESS_KEY')
 
 
 class StripArgument(argparse.Action):
