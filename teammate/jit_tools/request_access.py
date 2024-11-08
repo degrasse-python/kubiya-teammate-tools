@@ -34,7 +34,7 @@ class StripArgument(argparse.Action):
         setattr(namespace, self.dest, values.strip())
 
 
-def generate_policy(description, demo=True):
+def generate_policy(description, demo=False):
   print("✨ Generating least privileged policy JSON...")
   if not demo:
     messages = [{"content": f"Generate a least privileged policy JSON for the following description: {description} - return the JSON object.", "role": "user"}]
