@@ -25,7 +25,7 @@ BACKEND_URL = os.getenv('BACKEND_URL')
 BACKEND_PORT = os.getenv('BACKEND_PORT')
 BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
-GPT_API_KEY= os.getenv('GPT_API_KEY')
+GPT_API_KEY=os.getenv('GPT_API_KEY')
 GPT_ENDPOINT=os.getenv('GPT_ENDPOINT')
 
 

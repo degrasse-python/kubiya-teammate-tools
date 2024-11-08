@@ -19,8 +19,7 @@ request_access_tool = Tool(
           Arg(name="purpose", description="reason that individual needs the policy to be granted.", required=True),
           Arg(name="ttl", description="the time to live for the policy. hours=h, minutes=m", required=True),
           Arg(name="permission_set_name", description="the name of the policy", required=True),
-          Arg(name="policy_description", description="the description of the policy to be generated which includes the AWS service, actions, and Amazon Resource Name.", required=True),
-          Arg(name="policy_name", description="the name of the policy", required=True),
+          Arg(name="policy_description", description="the description of the policy to be generated which includes the AWS service, actions, and Amazon Resource Name.", required=False),
           ],
     env=[
         "SLACK_THREAD_TS", 
@@ -29,6 +28,8 @@ request_access_tool = Tool(
         'BACKEND_URL',
         'BACKEND_PORT',
         'BACKEND_DB',
+        'GPT_API_KEY',
+        'GPT_ENDPOINT',
         'BACKEND_PASS',
         'KUBIYA_JIT_WEBHOOK',
         'APPROVAL_SLACK_CHANNEL',
@@ -36,7 +37,8 @@ request_access_tool = Tool(
         
     ],
     content="""
-
+pip install redis > /dev/null 2>&1
+pip install boto3 > /dev/null 2>&1
 pip install argparse > /dev/null 2>&1
 pip install redis > /dev/null 2>&1
 pip install slack_sdk > /dev/null 2>&1
