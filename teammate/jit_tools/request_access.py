@@ -54,6 +54,8 @@ def generate_policy(description, demo=False):
       end = content.rfind('}')
       policy = content[start:end+1] if start != -1 and end != -1 else content
       jp = json.loads(policy)
+      print(f"✅ Generated least privileged policy ")
+
       return jp
     except Exception as e:
       print(f"❌ Policy generation failed: {e}")
@@ -88,9 +90,10 @@ def validate_aws_policy(policy_document):
         PolicyInputList=[policy_document_json],
         ActionNames=[],
     )
-    print("Policy structure is valid.")
+    print(f"✅ Policy structure is valid.")
+
   except Exception as e:
-      print("Policy structure is invalid:", e)
+      print(f"❌ Policy structure is invalid: {e}")
       raise
 
 def create_request_id():
@@ -157,7 +160,6 @@ if __name__ == "__main__":
       'approved': 'pending',
       'request_id': request_id
   }
-  print(f"📝 Creating approval request")
 
   ap_request_json =  {
                         request_id:
@@ -176,9 +178,9 @@ if __name__ == "__main__":
                         }
                       }
   
-  print(f"✅ Generated least privileged policy ")
   print(f"✅ For Request ID:\n\n{request_id}")
   print(BACKEND_DB, BACKEND_PORT, BACKEND_URL, BACKEND_PASS)
+  print(f"📝 Post to Redis for approval request")
 
   ### ----- Redis Client ----- ###
   rd = redis.Redis(host=BACKEND_URL, 
