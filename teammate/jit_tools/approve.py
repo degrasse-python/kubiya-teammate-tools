@@ -19,8 +19,8 @@ BACKEND_URL = os.getenv('BACKEND_URL')
 BACKEND_PORT = os.getenv('BACKEND_PORT')
 BACKEND_DB = os.getenv('BACKEND_DB')
 BACKEND_PASS = os.getenv('BACKEND_PASS')
-AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
-AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 KUBI_UUID = os.getenv('KUBI_UUID', '760b34a8-bc05-4224-9137-bffc43bef24c')  # Default UUID if not set
 
 def send_slack_message(channel_id, message, slack_token):
@@ -54,8 +54,8 @@ def validate_environment_variables():
     """Ensure all required environment variables are set."""
     required_vars = [
         'SLACK_API_TOKEN', 'JIT_API_KEY', 'BACKEND_URL',
-        'BACKEND_PORT', 'BACKEND_PASS', 'AWS_ACCESS_KEY',
-        'AWS_SECRET_KEY', 'APPROVER_USER_EMAIL'
+        'BACKEND_PORT', 'BACKEND_PASS', 'AWS_ACCESS_KEY_ID',
+        'AWS_SECRET_ACCESS_KEY', 'APPROVER_USER_EMAIL'
     ]
     missing_vars = [var for var in required_vars if not globals().get(var)]
     if missing_vars:
@@ -116,8 +116,8 @@ def create_iam_policy(approval_request, request_id):
     validate_aws_policy(approval_request[request_id]['policy_json'])
 
     session = boto3.Session(
-        aws_access_key_id=AWS_ACCESS_KEY,
-        aws_secret_access_key=AWS_SECRET_KEY,
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
     )
     iam_client = session.client('iam')
     try:

@@ -29,6 +29,7 @@ GPT_API_KEY=os.getenv('GPT_API_KEY')
 GPT_ENDPOINT=os.getenv('GPT_ENDPOINT')
 
 
+
 class StripArgument(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, values.strip())
