@@ -94,6 +94,20 @@ def create_policy_name():
   name = 'kubiya-jit-' + str(uuid.uuid4())
   return name
 
+def time_format(ttl):
+  try:
+    if ttl[-1] == 'm':
+      ttl_minutes = int(ttl[:-1])
+    elif ttl[-1] == 'h':
+      ttl_minutes = int(ttl[:-1]) * 60
+    elif ttl[-1] == 'd':
+      ttl_minutes = int(ttl[:-1]) * 60 * 24
+    else:
+      raise ValueError("Unsupported TTL format")
+  except ValueError as e:
+    print(f"❌ Error: {e}. Defaulting to 30 days.")
+    ttl_minutes = 30 * 24 * 60
+  return ttl_minutes
 
 if __name__ == "__main__":
 
@@ -120,9 +134,11 @@ if __name__ == "__main__":
   ttl = args.ttl
   permission_set_name = args.permission_set_name
   policy_description = ' '.join(args.policy_description)
-  policy_name = create_policy_name() # args.policy_namea
-  policy_json = generate_policy(policy_description)
+  policy_name = create_policy_name()
+  llm_policy = generate_policy(policy_description)
+  policy_json = json.loads(llm_policy)
   validate_aws_policy(policy_json)
+  
   try:
     if ttl[-1] == 'm':
       ttl_minutes = int(ttl[:-1])
