@@ -53,7 +53,8 @@ def generate_policy(description, demo=False):
       start = content.find('{')
       end = content.rfind('}')
       policy = content[start:end+1] if start != -1 and end != -1 else content
-      return json.loads(policy)
+      jp = json.loads(policy)
+      return jp
     except Exception as e:
       print(f"❌ Policy generation failed: {e}")
       sys.exit(1)
