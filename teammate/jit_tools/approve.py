@@ -75,6 +75,7 @@ def validate_aws_policy(policy_document):
     print("Policy structure is valid.")
   except Exception as e:
       print("Policy structure is invalid:", e)
+      raise
       
 
 def create_redis_client():
@@ -112,6 +113,8 @@ def validate_inputs_and_permissions(approval_action, approval_request, request_i
 
 def create_iam_policy(approval_request, request_id):
     """Create an IAM policy using Boto3."""
+    validate_aws_policy(approval_request[request_id]['policy_json'])
+
     session = boto3.Session(
         aws_access_key_id=AWS_ACCESS_KEY,
         aws_secret_access_key=AWS_SECRET_KEY,

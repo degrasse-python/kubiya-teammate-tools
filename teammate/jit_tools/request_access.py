@@ -134,7 +134,7 @@ if __name__ == "__main__":
     ttl_minutes = 30 * 24 * 60
 
   request_id = str(uuid.uuid4())
-
+  
   approval_request = {
       'user_email': USER_EMAIL,
       'purpose': purpose,
