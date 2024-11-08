@@ -140,8 +140,7 @@ if __name__ == "__main__":
   policy_name = create_request_id()
   request_id = policy_name
   llm_policy = generate_policy(policy_description)
-  policy_json = json.loads(llm_policy)
-  validate_aws_policy(policy_json)
+  validate_aws_policy(str(llm_policy))
   ttl_minutes = time_format(ttl)
   
   approval_request = {
@@ -150,7 +149,7 @@ if __name__ == "__main__":
       'ttl_minutes': ttl_minutes,
       'policy_name': policy_name,
       'permission_set_name': permission_set_name,
-      'policy_json': policy_json,
+      'llm_policy': llm_policy,
       'requested_at': datetime.utcnow().isoformat(),
       'expires_at': (datetime.utcnow() + timedelta(minutes=ttl_minutes)).isoformat(),
       'slack_channel_id': SLACK_CHANNEL_ID,
@@ -167,7 +166,7 @@ if __name__ == "__main__":
                         'ttl_min': approval_request['ttl_minutes'],
                         'policy_name': approval_request['policy_name'],
                         'permission_set_name': approval_request['permission_set_name'],
-                        'policy_json': approval_request['policy_json'],
+                        'llm_policy': approval_request['llm_policy'],
                         'requested_at': approval_request['requested_at'],
                         'expires_at': approval_request['expires_at'],
                         'user_email': approval_request['user_email'],
@@ -194,13 +193,13 @@ if __name__ == "__main__":
               Your task is to help the approving group decide whether to approve the following access request.
               You have a new access request from {USER_EMAIL} for the following purpose: {purpose}. The user requested this access for {ttl} minutes.
               This means that the access will be revoked after {ttl} minutes in case the request is approved.
-              The ID of the request is {request_id}. The policy to be created is: ```{policy_json}```\n\n
+              The ID of the request is {request_id}. The policy to be created is: ```{llm_policy}```\n\n
               CAREFULLY ASK IF YOU CAN MOVE FORWARD WITH THIS REQUEST. DO NOT EXECUTE THE REQUEST UNTIL YOU HAVE RECEIVED APPROVAL FROM THE USER YOU ARE ASSISTING.""".format(
       USER_EMAIL=USER_EMAIL,
       purpose=purpose,
       ttl=ttl,
       request_id=request_id,
-      policy_json=policy_json
+      llm_policy=llm_policy
   )
 
   ### ----- Create and send webhook ----- ###
@@ -231,9 +230,9 @@ if __name__ == "__main__":
     "name": "Approval Request",
     "org": KUBIYA_USER_ORG,
     'USER_EMAIL': USER_EMAIL,
-    'purpose': policy_json,
+    'purpose': llm_policy,
     'request_id': json_id, 
-    'policy_json': policy_json,
+    'llm_policy': llm_policy,
     'ttl': ttl,
     "source": "Triggered by an access request (Agent)",
     "updated_at": datetime.utcnow().isoformat() + "Z"
