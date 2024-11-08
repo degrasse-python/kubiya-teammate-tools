@@ -97,9 +97,15 @@ if __name__ == "__main__":
   ### ----- Parse command-line arguments ----- ###
   # Get args from Kubiya
   parser = argparse.ArgumentParser(description="Trigger a request for just in time permissions that require approval from another user.")
-  parser.add_argument("--purpose", required=True, help="Purpose of the request for just in time permissions.")
+  parser.add_argument("--purpose", 
+                      nargs='+', # action=StripArgument ,
+                      required=True, 
+                      help="Purpose of the request for just in time permissions.")
   parser.add_argument("--ttl", required=True, help="The time to live (ttl) for the permissions request.")
-  parser.add_argument("--permission_set_name", required=True, help="The permissions set name for permissions request.")
+  parser.add_argument("--permission_set_name", 
+                      required=True, 
+                      nargs='+', # action=StripArgument ,
+                      help="The permissions set name for permissions request.")
   parser.add_argument("--policy_description", 
                       required=True,
                       nargs='+', # action=StripArgument ,
