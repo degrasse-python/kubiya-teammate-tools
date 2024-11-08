@@ -86,6 +86,7 @@ def validate_aws_policy(policy_document):
     print("Policy structure is valid.")
   except Exception as e:
       print("Policy structure is invalid:", e)
+      raise
 
 def create_policy_name():
   name = 'kubiya-jit-' + str(uuid.uuid4())
@@ -119,7 +120,7 @@ if __name__ == "__main__":
   policy_description = ' '.join(args.policy_description)
   policy_name = create_policy_name() # args.policy_namea
   policy_json = generate_policy(policy_description)
-
+  validate_aws_policy(policy_json)
   try:
     if ttl[-1] == 'm':
       ttl_minutes = int(ttl[:-1])
@@ -149,15 +150,10 @@ if __name__ == "__main__":
       'approved': 'pending',
       'request_id': request_id
   }
-
-  # unique_jit_id
-  json_id = request_id # USER_EMAIL+ \
-            
-
   print(f"📝 Creating approval request")
 
   ap_request_json =  {
-                        json_id:
+                        request_id:
                         {
                         'status': 'pending',
                         'ttl_min': approval_request['ttl_minutes'],
