@@ -257,7 +257,7 @@ if __name__ == "__main__":
                     'ttl_min': approval_request['ttl_minutes'],
                     'policy_name': approval_request['policy_name'],
                     'permission_set_name': approval_request['permission_set_name'],
-                    'llm_policy': approval_request['llm_policy'],
+                    'llm_policy': str(approval_request['llm_policy']),
                     'requested_at': approval_request['requested_at'],
                     'expires_at': approval_request['expires_at'],
                     'user_email': approval_request['user_email'],
