@@ -113,7 +113,7 @@ def validate_inputs_and_permissions(approval_action, approval_request, request_i
 
 def create_iam_policy(approval_request, request_id):
     """Create an IAM policy using Boto3."""
-    validate_aws_policy(approval_request[request_id]['policy_json'])
+    validate_aws_policy(approval_request[request_id]['llm_policy'])
 
     session = boto3.Session(
         aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -123,7 +123,7 @@ def create_iam_policy(approval_request, request_id):
     try:
         response = iam_client.create_policy(
             PolicyName=approval_request[request_id]['policy_name'],
-            PolicyDocument=approval_request[request_id]['policy_json']
+            PolicyDocument=approval_request[request_id]['llm_policy']
         )
         policy_arn = response['Policy']['Arn']
         print(f"✅ Policy created successfully: {policy_arn}")
