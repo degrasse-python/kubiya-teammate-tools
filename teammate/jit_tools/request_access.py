@@ -234,7 +234,7 @@ if __name__ == "__main__":
     "org": KUBIYA_USER_ORG,
     'USER_EMAIL': USER_EMAIL,
     'purpose': llm_policy,
-    'request_id': json_id, 
+    'request_id': request_id, 
     'llm_policy': llm_policy,
     'ttl': ttl,
     "source": "Triggered by an access request (Agent)",
