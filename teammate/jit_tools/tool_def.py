@@ -31,7 +31,9 @@ request_access_tool = Tool(
         'GPT_API_KEY',
         'GPT_ENDPOINT',
         'BACKEND_PASS',
-        'KUBIYA_JIT_WEBHOOK',
+        'KUBIYA_JIT_WEBHOOK',,
+        'AWS_ACCESS_KEY_ID',
+        'AWS_SECRET_ACCESS_KEY',
         'APPROVAL_SLACK_CHANNEL',
         "KUBI_UUID"
         
