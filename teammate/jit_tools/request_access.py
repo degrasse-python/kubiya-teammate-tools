@@ -221,13 +221,17 @@ if __name__ == "__main__":
                     required=True,
                     nargs='+', # action=StripArgument ,
                     help="The policy description for the just in time request.")
+  parser.add_argument("--region", required=False, help="The region of the resource in AWS for the JIT request.")
+  parser.add_argument("--aws_account_id", required=True, help="The AWS account ID for the JIT request.")
   args = parser.parse_args()
 
   # Parameters
   purpose = args.purpose
   ttl = args.ttl
+  region = args.region
+  aws_account_id = args.aws_account_id
   permission_set_name = args.permission_set_name
-  policy_description = ' '.join(args.policy_description)
+  policy_description = ' '.join(args.policy_description) + f" - region: {region} - account ID: {aws_account_id}"
   policy_name = create_request_id()
   request_id = policy_name
   llm_policy = generate_policy(policy_description)
@@ -251,22 +255,22 @@ if __name__ == "__main__":
   }
 
   ap_request_json =  {
-                    request_id:
-                    {
-                    'status': 'pending',
-                    'ttl_min': approval_request['ttl_minutes'],
-                    'policy_name': approval_request['policy_name'],
-                    'permission_set_name': approval_request['permission_set_name'],
-                    'llm_policy': str(approval_request['llm_policy']),
-                    'requested_at': approval_request['requested_at'],
-                    'expires_at': approval_request['expires_at'],
-                    'user_email': approval_request['user_email'],
-                    'slack_channel_id': approval_request['slack_channel_id'],
-                    'slack_thread_ts': approval_request['slack_thread_ts'],
-                    'purpose': approval_request['purpose'],
-                    }
-                  }
-  
+                      request_id:
+                        {
+                        'status': 'pending',
+                        'ttl_min': approval_request['ttl_minutes'],
+                        'policy_name': approval_request['policy_name'],
+                        'permission_set_name': approval_request['permission_set_name'],
+                        'llm_policy': str(approval_request['llm_policy']),
+                        'requested_at': approval_request['requested_at'],
+                        'expires_at': approval_request['expires_at'],
+                        'user_email': approval_request['user_email'],
+                        'slack_channel_id': approval_request['slack_channel_id'],
+                        'slack_thread_ts': approval_request['slack_thread_ts'],
+                        'purpose': approval_request['purpose'],
+                        }
+                      }
+   
   print(f"✅ For Request ID:\n\n{request_id}")
   print(BACKEND_DB, BACKEND_PORT, BACKEND_URL, BACKEND_PASS)
   print(f"📝 Post to Redis for approval request")

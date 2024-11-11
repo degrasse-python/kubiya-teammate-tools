@@ -19,6 +19,8 @@ request_access_tool = Tool(
           Arg(name="purpose", description="reason that individual needs the policy to be granted.", required=True),
           Arg(name="ttl", description="the time to live for the policy. hours=h, minutes=m", required=True),
           Arg(name="permission_set_name", description="the name of the policy", required=True),
+          Arg(name="region", description="the region the resource in AWS", required=False),
+          Arg(name="aws-account-id", description="the account ID in AWS", required=True),
           Arg(name="policy_description", description="the description of the policy to be generated which includes the AWS service, actions, and Amazon Resource Name.", required=False),
           ],
     env=[
