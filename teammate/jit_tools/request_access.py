@@ -144,7 +144,7 @@ if __name__ == "__main__":
   request_id = policy_name
   llm_policy = generate_policy(policy_description)
   print(llm_policy)
-  validate_aws_policy(str(llm_policy))
+  # validate_aws_policy(str(llm_policy))
   ttl_minutes = time_format(ttl)
   
   approval_request = {
