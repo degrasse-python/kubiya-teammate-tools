@@ -97,8 +97,8 @@ def validate_aws_policy(policy_document):
       raise
 
 def create_request_id():
-  name = 'kubiya-jit-' + str(uuid.uuid4())
-  return name
+  request_id = 'kubiya-jit-' + str(uuid.uuid4())
+  return request_id
 
 def time_format(ttl):
   try:
