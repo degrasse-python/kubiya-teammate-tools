@@ -86,14 +86,34 @@ def create_redis_client():
         password=BACKEND_PASS,
     )
 
-def retrieve_approval_request(rd, request_id):
-    """Retrieve the approval request from Redis."""
+
+
+
+def retrieve_approval_request(rd, request, request_id):
+    """Store the approval request in Redis."""
     try:
-        res = rd.smembers(str(request_id))
-        decoded_load = [item.decode('utf-8').replace("'", '"') for item in res]
-        load = decoded_load[0]
-        approval_request = json.loads(load)
-        return approval_request
+        # Format webhook data to match expected structure
+        ap_request_json = {
+            request_id: {
+                'status': 'pending',
+                'ttl_min': request.json['ttl'],
+                'policy_name': request.json['policy_name'],
+                'permission_set_name': request.json['permission_set_name'],
+                'llm_policy': str(request.json['policy']),
+                'requested_at': datetime.utcnow().isoformat(),
+                'expires_at': (datetime.utcnow() + timedelta(minutes=request.json['ttl'])).isoformat(),
+                'user_email': request.json['user_email'],
+                'slack_channel_id': request.json['slack_channel_id'],
+                'slack_thread_ts': request.json['slack_thread_ts'],
+                'purpose': request.json['purpose']
+            }
+        }
+        
+        # Add to Redis set
+        rd.sadd(str(request_id), json.dumps(ap_request_json))
+        
+        # Return the stored data
+        return ap_request_json
     except Exception as e:
         print(f"❌ Error retrieving approval request: {e}")
         sys.exit(1)
