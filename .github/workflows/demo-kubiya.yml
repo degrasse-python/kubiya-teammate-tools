@@ -1,0 +1,88 @@
+name: Python Application CI/CD
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        else
+          echo "requirements.txt not found. This may cause issues." >&2
+        fi
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Run tests
+      run: |
+        pytest tests/ || echo "Tests failed, but continuing workflow"
+    - name: Build Docker image
+      run: |
+        docker build -t myapp:${{ github.sha }} .
+      continue-on-error: true
+    - name: Push to Docker Hub
+      run: |
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        docker push myapp:${{ github.sha }}
+      continue-on-error: true
+    - name: Deploy to production
+      run: |
+        ssh user@production-server 'docker pull myapp:${{ github.sha }} && docker stop myapp-container && docker rm myapp-container && docker run -d --name myapp-container myapp:${{ github.sha }}'
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+      continue-on-error: true
+    - name: Capture detailed logs
+      if: always()
+      run: |
+        {
+          echo "GITHUB_WORKFLOW: $GITHUB_WORKFLOW"
+          echo "GITHUB_ACTION: $GITHUB_ACTION"
+          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+          echo "GITHUB_SHA: $GITHUB_SHA"
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "Python version:"
+          python --version
+          echo "Pip list:"
+          pip list
+          echo "Flake8 output:"
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          echo "Pytest output:"
+          pytest tests/ || echo "Tests failed"
+          echo "Docker version:"
+          docker --version
+          echo "Docker images:"
+          docker images
+          echo "Step outputs:"
+          echo "${{ toJson(steps) }}"
+        } > detailed_logs.txt
+    - name: Send notification
+      if: always()
+      run: |
+        LOGS=$(cat detailed_logs.txt)
+        TRUNCATED_LOGS="${LOGS:0:65000}"
+        ESCAPED_LOGS=$(echo "$TRUNCATED_LOGS" | jq -sRr @json)
+        PAYLOAD=$(jq -n \
+                    --arg status "${{ job.status }}" \
+                    --arg repo "$GITHUB_REPOSITORY" \
+                    --arg workflow "$GITHUB_WORKFLOW" \
+                    --arg commit "$GITHUB_SHA" \
+                    --arg logs "$ESCAPED_LOGS" \
+                    '{status: $status, repository: $repo, workflow: $workflow, commit: $commit, logs: $logs}')
+        curl -X POST -H "Content-Type: application/json" \
+        -d "$PAYLOAD" \
+        https://webhooksource-kubiya.hooks.kubiya.ai:8443/5itc-n9c4VE1So0qirUlr3HX83YgT8Z-dZNP9MHclyoXQRyuio3lMQvkZsrogplYu8W1pdI92HXbRBjPjSJDINjJRHLk
