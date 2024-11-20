@@ -92,7 +92,7 @@ jobs:
                     --arg commit "$GITHUB_SHA" \
                     --arg pr_number "$PR_NUMBER" \
                     --arg logs "$ESCAPED_LOGS" \
-                    '{status: $status, repository: $repo, repository_name: $repo_name, organization: $org_name, workflow: $workflow, commit: $commit, pull_request_number: $pr_number, logs: $logs}')
+                    '{status: $status, repository_name: $repo_name, organization: $org_name, workflow: $workflow, commit: $commit, pull_request_number: $pr_number, logs: $logs}')
         curl -X POST -H "Content-Type: application/json" \
         -d "$PAYLOAD" \
         https://webhook.site/96d81943-7709-43c7-83d5-7049f7f4464c
