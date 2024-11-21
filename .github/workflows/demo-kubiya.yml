@@ -101,18 +101,33 @@ jobs:
     - name: Send notification
       if: failure()
       run: |
-        WORKFLOW_FILE=$(cat $GITHUB_WORKSPACE/.github/workflows/demo-kubiya.yml)
+        # Check if the event is a pull request
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          PR_BASE="${{ github.event.pull_request.base.ref }}"
+          PR_HEAD="${{ github.event.pull_request.head.ref }}"
+          PR_URL="${{ github.event.pull_request.html_url }}"
+        else
+          PR_NUMBER="N/A"
+          PR_TITLE="N/A"
+          PR_AUTHOR="N/A"
+          PR_BASE="N/A"
+          PR_HEAD="N/A"
+          PR_URL="N/A"
+        fi
+        WORKFLOW_FILE=$(cat $GITHUB_WORKSPACE/.github/workflows/<change-to-workflow-file>.yaml)
         LOGS=$(cat detailed_logs.txt)
         TRUNCATED_LOGS="${LOGS:0:65000}"
         ESCAPED_LOGS=$(echo "$TRUNCATED_LOGS" | jq -sRr @json)
-        PR_NUMBER=${{ github.event.pull_request.number }}
         ESCAPED_PR=$(echo "$PR_NUMBER" | jq -sRr @json)
         PAYLOAD=$(jq -n \
                     --arg status "${{ job.status }}" \
                     --arg repo "$GITHUB_REPOSITORY" \
+                    --arg workflow "$GITHUB_WORKFLOW" \
                     --arg commit "$GITHUB_SHA" \
                     --arg logs "$ESCAPED_LOGS" \
-                    --arg workflow_logs "$WORKFLOW_LOGS" \
                     --arg job_name "${{ github.job }}" \
                     --arg run_id "${{ github.run_id }}" \
                     --arg run_url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
@@ -124,12 +139,11 @@ jobs:
                     --arg workflow_name "${{ github.workflow }}" \
                     --arg runner_os "${{ runner.os }}" \
                     --arg runner_arch "${{ runner.arch }}" \
-                    --arg pr_number   \
-                    --arg pr_title "${{ github.event.pull_request.title }}" \
-                    --arg pr_author "${{ github.event.pull_request.user.login }}" \
-                    --arg pr_base "${{ github.event.pull_request.base.ref }}" \
-                    --arg pr_head "${{ github.event.pull_request.head.ref }}" \
-                    --arg pr_url "${{ github.event.pull_request.html_url }}" \
+                    --arg pr_number PR_NUMBER \
+                    --arg pr_author PR_AUTHOR \
+                    --arg pr_base PR_BASE \
+                    --arg pr_head PR_HEAD \
+                    --arg pr_url PR_URL \
                     '{status: $status, repository: $repo, workflow: $workflow, commit: $commit, logs: $logs}')
         curl -fsSL -X POST -H "Content-Type: application/json" \
         -d "$PAYLOAD" \
