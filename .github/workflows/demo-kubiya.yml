@@ -101,7 +101,7 @@ jobs:
     - name: Send notification
       if: failure()
       run: |
-        WORKFLOW_FILE=$(cat $GITHUB_WORKSPACE/.github/workflows/gradle-main-branch-w-webhook.yaml)
+        WORKFLOW_FILE=$(cat $GITHUB_WORKSPACE/.github/workflows/demo-kubiya.yml)
         LOGS=$(cat detailed_logs.txt)
         WORKFLOW_LOGS=$(cat $GITHUB_WORKSPACE/workflow.log || echo 'No logs available' | jq -sRr @json)
         TRUNCATED_LOGS="${LOGS:0:65000}"
