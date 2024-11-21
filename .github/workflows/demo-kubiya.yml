@@ -62,8 +62,6 @@ jobs:
           echo "Runner Architecture: ${{ runner.arch }}"
 
           echo "######## Github ########"
-          echo "GitOps project name: ${{ fromJson(steps.ci-config.outputs.config).gitops.project_name }}"
-          echo "GitOps Service: ${{ fromJson(steps.ci-config.outputs.config).gitops.project_name }}"
           echo "GITHUB_WORKFLOW: $GITHUB_WORKFLOW"
           echo "GITHUB_ACTION: $GITHUB_ACTION"
           echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
