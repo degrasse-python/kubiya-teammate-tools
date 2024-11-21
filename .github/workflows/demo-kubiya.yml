@@ -46,6 +46,7 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
       continue-on-error: true
+
     #################################################
     #      KUBIYA BUILD ANALYSIS SECTION
     #################################################
@@ -90,11 +91,11 @@ jobs:
           echo "Tests Output: (skipped tests)"
 
           echo "######## Docker ########"
-          echo "Docker project version:"
-          echo "${{ steps.release-local.outputs.project_version }}"
+          echo "Docker version:"
+          docker --version
           echo "Docker images:"
-          echo "${{ toJson(fromJson(steps.ci-config.outputs.config).docker.images) }}"
-
+          docker images
+          echo "######## Pipeline STDOUT ########"
           echo "Step outputs:"
           echo "${{ toJson(steps) }}"
         } > detailed_logs.txt
