@@ -103,7 +103,6 @@ jobs:
       run: |
         WORKFLOW_FILE=$(cat $GITHUB_WORKSPACE/.github/workflows/demo-kubiya.yml)
         LOGS=$(cat detailed_logs.txt)
-        WORKFLOW_LOGS=$(cat $GITHUB_WORKSPACE/workflow.log || echo 'No logs available' | jq -sRr @json)
         TRUNCATED_LOGS="${LOGS:0:65000}"
         ESCAPED_LOGS=$(echo "$TRUNCATED_LOGS" | jq -sRr @json)
         PR_NUMBER=${{ github.event.pull_request.number }}
@@ -111,7 +110,6 @@ jobs:
         PAYLOAD=$(jq -n \
                     --arg status "${{ job.status }}" \
                     --arg repo "$GITHUB_REPOSITORY" \
-                    --arg workflow "$GITHUB_WORKFLOW" \
                     --arg commit "$GITHUB_SHA" \
                     --arg logs "$ESCAPED_LOGS" \
                     --arg workflow_logs "$WORKFLOW_LOGS" \
