@@ -117,7 +117,6 @@ jobs:
           PR_HEAD="N/A"
           PR_URL="N/A"
         fi
-        WORKFLOW_FILE=$(cat $GITHUB_WORKSPACE/.github/workflows/<change-to-workflow-file>.yaml)
         LOGS=$(cat detailed_logs.txt)
         TRUNCATED_LOGS="${LOGS:0:65000}"
         ESCAPED_LOGS=$(echo "$TRUNCATED_LOGS" | jq -sRr @json)
